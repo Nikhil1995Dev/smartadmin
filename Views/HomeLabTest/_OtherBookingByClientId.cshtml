@@ -1,0 +1,130 @@
+﻿@model IEnumerable<SmartAdmin.WebUI.ViewModels.OherBookingViewModel>
+@{ Layout = null;}
+@if (Model.Count() > 0)
+{
+    <table id="dt-setting" class="table table-bordered table-hover table-striped w-100">
+        <thead>
+            <tr>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Email
+                </th>
+                <th>
+                    Mobile No.
+                </th>
+                <th>
+                    Gender
+                </th>
+
+                <th>
+                    Message
+                </th>
+
+                <th>
+                    Booking Date
+                </th>
+                <th>
+                    Date
+                </th>
+                @if (Model.ElementAt(0).Category.Code == "HLC001")
+                {
+                    <th>
+                        Time
+                    </th>
+                }
+                <th>
+                    Booking Type
+                </th>
+
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.Raw(item.User.FirstName + " " + item.User.LastName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.User.Email)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.User.PhoneNumber)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.User.Gender)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Message)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CreatedOn)
+                    </td>
+                    <td>
+                        @Html.Raw(item.BookingDate.Value.ToShortDateString())
+                    </td>
+                    @if (item.Category.Code == "HLC001")
+                    {
+                        <td>
+                            @Html.Raw(DateTime.Today.Add((TimeSpan)item.BookingTime).ToString("hh:mm tt"))
+                        </td>
+                    }
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Category.Name)
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+else
+{
+    <table id="dt-setting" class="table table-bordered table-hover table-striped w-100">
+        <thead>
+            <tr>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Email
+                </th>
+                <th>
+                    Mobile No.
+                </th>
+                <th>
+                    Gender
+                </th>
+
+                <th>
+                    Message
+                </th>
+
+                <th>
+                    Booking Date
+                </th>
+                <th>
+                    Date
+                </th>
+               
+                    <th>
+                        Time
+                    </th>
+                
+                <th>
+                    Booking Type
+                </th>
+
+            </tr>
+        </thead>
+
+        <tbody>
+          
+        </tbody>
+    </table>
+}

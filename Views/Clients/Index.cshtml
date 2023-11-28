@@ -1,0 +1,291 @@
+﻿@{ ViewData["Title"] = "Client";
+    ViewData["PageName"] = "Client";
+    ViewData["PageDescription"] = "Manage  Client"; }
+@section HeadBlock {
+    <link rel="stylesheet" media="screen, print" href="~/css/datagrid/datatables/datatables.bundle.css">
+    <link rel="stylesheet" media="screen, print" href="~/css/theme-demo.css">
+    <style>
+        .modal-content {
+            width: 800px
+        }
+    </style>
+}
+<div class="row">
+    <div class="col-xl-12">
+        <div id="panel-1" class="panel">
+            <div class="panel-hdr">
+                <h2>
+                    Manage  <span class="fw-300"><i>Clients</i></span>
+                </h2>
+                <div class="panel-toolbar">
+                    <button class="btn btn-panel" data-action="panel-collapse" data-toggle="tooltip" data-offset="0,10" data-original-title="Collapse"></button>
+                    <button class="btn btn-panel" data-action="panel-fullscreen" data-toggle="tooltip" data-offset="0,10" data-original-title="Fullscreen"></button>
+                    <button class="btn btn-panel" data-action="panel-close" data-toggle="tooltip" data-offset="0,10" data-original-title="Close"></button>
+                </div>
+            </div>
+            <div class="panel-container show">
+                <div class="panel-content">
+                  
+                    <div class="tab-content pt-4">
+                        <div class="tab-pane fade show active" id="tab_default-1" role="tabpanel">
+                            <div class="row">
+                                <div class="col-xl-12">
+                                    <table id="dt-Client" class="table table-bordered table-hover table-striped w-100"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+@section ScriptsBlock {
+    <script src="~/js/datagrid/datatables/datatables.bundle.js"></script>
+    <script>
+	$(document).ready( function () {
+        const endpoint ='api/client'
+        var columnSet = [
+            {
+            data: "id",
+			"visible": false,
+			"searchable": false,
+			type: "hidden"
+		},
+            {
+                data: "createdBy",
+                "visible": false,
+                "searchable": false,
+                type: "hidden"
+			},
+            {
+                data: "createdDate",
+                "visible": false,
+                "searchable": false,
+                type: "hidden"
+			},
+
+		{
+            title: "Client Name",
+            data: "clientName",
+			type: "text",
+            },
+            {
+                title: "Group Code",
+                data: "groupCode",
+                type: "text",
+            },
+		{
+            title: "Client OverView",
+            data: "clientOverView",
+			type:"text",
+			required: true
+		},
+		{
+            title: "Contact Person",
+            data: "contactPerson",
+			type: "text",
+			},
+            {
+                title: "Active",
+                data: "isActive",
+                type: "select",
+                options: ['Yes', 'No'],
+                render: function (data) {
+                    return data == 1 ? 'Yes' : 'No'
+                }
+            },
+		{
+            title: "Contact Number",
+            data: "contactNumber",
+            type: "number"
+		},
+		{
+            title: "Contact Email",
+            data: "contactEmail",
+            type: "text"
+
+		},
+		{
+            title: "Address",
+            data: "address",
+			type: "text",
+		},
+		{
+            title: "WebSite Url",
+            data: "webSiteUrl",
+            type: "text",
+
+            },
+            {
+                title: "Client Logo",
+                data: "clientLogo",
+                type: "text",   
+                render: function (data, type, full, meta) {
+                    if (data)
+                        return '<img class="profile-image-sm"  src="' + data + '"/>'
+                    else return '';
+                }
+
+            }
+        ]
+
+		/* start data table */
+		var dtClient = $('#dt-Client').dataTable({
+			/* check datatable buttons page for more info on how this DOM structure works */
+			dom: "<'row mb-3'<'col-sm-12 col-md-6 d-flex align-items-center justify-content-start'f><'col-sm-12 col-md-6 d-flex align-items-center justify-content-end'B>>" +
+				"<'row'<'col-sm-12'tr>>" +
+				"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            ajax: endpoint,
+			columns: columnSet,
+			select: 'single',
+			altEditor: true,
+			responsive: true,
+			/* buttons uses classes from bootstrap, see buttons page for more details */
+			buttons: [
+				{
+					extend: 'selected',
+					text: '<i class="@(Settings.Theme.IconPrefix) fa-times mr-1"></i> Delete',
+					name: 'delete',
+					className: 'btn-danger btn-sm mr-1 btnDelete'
+				},
+				{
+					extend: 'selected',
+					text: '<i class="@(Settings.Theme.IconPrefix) fa-edit mr-1"></i> Edit',
+					name: 'edit',
+                    className: 'btn-primary btn-sm mr-1 btnEdit',
+                    id:'btnEdit'
+				},
+				{
+					text: '<i class="@(Settings.Theme.IconPrefix) fa-plus mr-1"></i> Add',
+					name: 'add',
+                    className: 'btn-success btn-sm mr-1 btnAdd',
+                    id: 'btnAdd'
+				},
+				{
+					text: '<i class="@(Settings.Theme.IconPrefix) fa-sync mr-1"></i> Synchronize',
+					name: 'refresh',
+					className: 'btn-info btn-sm'
+				}
+			],
+            //columnDefs: [
+
+            //    {
+            //        type: 'hidden',
+            //        title:'Action',
+            //        data: null,
+            //        targets: 11,
+            //        render: function (data, type, full, meta) {
+            //            if (full.answerType == 'dropdown' || full.answerType == 'checkbox' || full.answerType == 'radio') {
+            //                return '<a href="/AnswerOptions/Index?id=' + full.ClientId + '" title="Manage Options"><i class="fal fa-eye" style="font-size: 18px;"></i></a>';
+            //            }
+            //            else {
+            //                return '';
+            //            }
+            //        },
+            //    }
+            //],
+			/* default callback for insertion: mock webservice, always success */
+            onAddRow: function (dt, rowdata, success, error) {
+                debugger
+                rowdata.clientLogo = base64str;
+                rowdata.isActive = rowdata.isActive == 'Yes' ? true : false
+                $.ajax({
+					url: endpoint, type: 'POST', data: rowdata,
+                    error: error,
+                    success: function (data) {
+                        debugger
+                        if (data) {
+                            ShowNotification('success', 'Client', 'Client created successfully')
+                            success(data)
+                        }
+                        else {
+                            ShowNotification('error', 'Client', 'Unable to create Client')
+                        }
+                    }
+                });
+			},
+            onEditRow: function (dt, rowdata, success, error) {
+                debugger
+                if (base64str != '') {
+                    rowdata.clientLogo = base64str;
+                } 
+                rowdata.isActive = rowdata.isActive == 'Yes' ? true : false
+				$.ajax({
+					url: endpoint, type: 'PUT', data: rowdata,
+                    success: function (data) {
+                        if (data) {
+                            ShowNotification('success', 'Client', 'Client updated successfully')
+                            success(data)
+                        }
+                        else {
+                            ShowNotification('error', 'Client', 'Unable to update Client')
+                        }
+                    },
+                    error: error
+                });
+			},
+            onDeleteRow: function (dt, rowdata, success, error) {
+                rowdata.isActive = rowdata.isActive == 'Yes' ? true : false
+                $.ajax({
+                    url: endpoint, type: 'DELETE', data: rowdata,
+                    success: function (data) {
+                        if (data) {
+                            ShowNotification('success', 'Client', 'Client deleted successfully')
+                            success(data)
+                        }
+                        else {
+                            ShowNotification('error', 'Client', 'Unable to delete Client')
+                        }
+                    },
+                    error: error
+                });
+			},
+        });
+        $('#dt-Client_wrapper').on('click', '.btnAdd', function () {
+           
+            $('#address').replaceWith('<textarea id="address" class="form-control"></textarea>');
+            $('#clientOverView').replaceWith('<textarea id="clientOverView" class="form-control"></textarea>');
+            $('#clientLogo').replaceWith('<input type="file" id="clientLogo" class="form-control"/>');
+            getBase64Image()
+        })
+        $('#dt-Client_wrapper').on('click', '.btnEdit', function () {
+            debugger
+            let Client = $(dtClient).find('tbody tr.selected td');
+            $('#address').replaceWith('<textarea id="address" class="form-control">'+Client.eq(6).text()+'</textarea>');
+            $('#clientOverView').replaceWith('<textarea id="clientOverView" class="form-control">' + Client.eq(1).text() +'</textarea>');
+            $('#isActive option:contains(' + Client.eq(3).text() + ')').attr('selected', 'selected');
+            $('#clientLogo').replaceWith('<input type="file" id="clientLogo" class="form-control"/>');
+            getBase64Image()
+        })
+        $('#dt-Client_wrapper').on('click', '.btnDelete', function () {
+            debugger
+            let Client = $(dtClient).find('tbody tr.selected td');
+            $('label[for=clientLogo]').parent().remove();
+        })
+    });
+        let base64str = '';
+        function getBase64Image() {
+            var handleFileSelect = function (evt) {
+                var files = evt.target.files;
+                var file = files[0];
+                if (files && file) {
+                    var reader = new FileReader();
+                    reader.onload = function (readerEvt) {
+                        var binaryString = readerEvt.target.result;
+                        base64str = binaryString;
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            if (window.File && window.FileReader && window.FileList && window.Blob) {
+                document.getElementById('clientLogo').addEventListener('change', handleFileSelect, false);
+            } else {
+                alert('The File APIs are not fully supported in this browser.');
+            }
+        }
+    </script>
+}

@@ -1,0 +1,201 @@
+﻿@section HeadBlock {
+    <link rel="stylesheet" media="screen, print" href="~/css/formplugins/bootstrap-datepicker/bootstrap-datepicker.css">
+    <link rel="stylesheet" media="screen, print" href="~/css/formplugins/select2/select2.bundle.css">
+}
+<div class="row">
+    <div class="col-xl-12">
+        <div id="panel-1" class="panel">
+            <div class="panel-hdr">
+                <h2>
+                    Manage <span class="fw-300"><i>Availability</i></span>
+                </h2>
+                <div class="panel-toolbar">
+                    <button class="btn btn-panel" data-action="panel-collapse" data-toggle="tooltip" data-offset="0,10" data-original-title="Collapse"></button>
+                    <button class="btn btn-panel" data-action="panel-fullscreen" data-toggle="tooltip" data-offset="0,10" data-original-title="Fullscreen"></button>
+                    <button class="btn btn-panel" data-action="panel-close" data-toggle="tooltip" data-offset="0,10" data-original-title="Close"></button>
+                </div>
+            </div>
+            <div class="panel-container show">
+                <div class="panel-content">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Clients</label>
+                                <select class="select2 form-control w-100" id="select-Clients" onchange="onChaneClient(this)" asp-items="ViewBag.Clients">
+                                </select>
+
+                            </div>
+
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Category</label>
+                                <select class="select2 form-control w-100" id="select-category">
+                                    <option value="">--select--</option>
+                                </select>
+
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="tab-content pt-4">
+                            <div class="form-group row">
+                                <label class="form-label">Select Date</label>
+
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="datepicker-3">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text fs-xl">
+                                            <i class="@(Settings.Theme.IconPrefix) fa-calendar-alt"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">Shedule:<label id="lblDate"></label></div>
+                                <div class="col-md-4"><button class="btn btn-primary" onclick="regenerate()">Re generate</button></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-2"></div>
+                                <div class="col-md-8" id="dvSlot">
+
+                                </div>
+                                <div class="col-md-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section ScriptsBlock {
+    <script src="~/js/formplugins/bootstrap-datepicker/bootstrap-datepicker.js"></script>
+    <script src="~/js/formplugins/select2/select2.bundle.js"></script>
+    <script>
+        var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+		var controls = {
+			leftArrow: '<i class="@(Settings.Theme.IconPrefix) fa-angle-left" style="font-size: 1.25rem"></i>',
+			rightArrow: '<i class="@(Settings.Theme.IconPrefix) fa-angle-right" style="font-size: 1.25rem"></i>'
+		}
+		var runDatePicker = function () {
+
+			$('#datepicker-3').datepicker({
+                templates: controls,
+                dateFormat: "dd-mm-yyyy",
+
+			});
+        }
+
+		$(document).ready(function () {
+            runDatePicker();
+
+                $('#select-Clients').prepend('<option selected></option>').select2({
+                    placeholder: "Select  Clients"
+                })
+        });
+        $('#datepicker-3').change(function () {
+            debugger
+            var date = new Date($(this).val());
+            var formattedDate = date.toLocaleDateString('en-us', options);
+            var dayofdate = date.getDay()
+            $('#lblDate').text(formattedDate)
+            getTimeSlot(date.toDateString())
+        })
+        function getTimeSlot(date) {
+            debugger
+            let clientId = $('#select-Clients').val();
+            let category = $('#select-category').val();
+            if (category == "") {
+                ShowNotification('error', 'Error!', 'Please select a category')
+                return
+            }
+            if (clientId == "") {
+                ShowNotification('error', 'Error!', 'Please select a client')
+                return
+            }
+            $.get('@Url.Action("GetTimeSlot")', { ClientId: clientId, StartDate: date, Category: category }).done(function (d) {
+                let html = ''
+                $('#dvSlot').empty()
+                $.each(d, function (i, v) {
+                    debugger
+                    if (v.isAvailable) {
+                        html += '<button onclick="changeAvailabilityStatus(' + v.id + ',this)" class="btn btn-success m-1">' + v.startTimeAmPm + '-' + v.endTimeAmPm + '</button>'
+                    }
+                    else {
+                        html += '<button onclick="changeAvailabilityStatus(' + v.id + ',this)" class="btn btn-danger  m-1">' + v.startTimeAmPm + '-' + v.endTimeAmPm + '</button>'
+                    }
+
+                })
+                $('#dvSlot').append(html)
+
+            }).fail(function () {
+                ShowNotification('error', "Error!", "something went wrong");
+            })
+        }
+        function regenerate() {
+            debugger
+            let clientId = $('#select-Clients').val();
+            let category = $('#select-category').val();
+            var txtdate = $('#lblDate').text()
+            var startDate = new Date(txtdate).toDateString()
+            var datepart = txtdate.split(',');
+            var dvSlot = $('#dvSlot');
+            if (clientId == "") {
+                ShowNotification('error', 'Error!', 'Please select client')
+                return
+            }
+            if (txtdate == "") {
+                ShowNotification('error', 'Error!', 'Please select date')
+                return
+            }
+            if (category == "") {
+                ShowNotification('error', 'Error!', 'Please select a category')
+                return
+            }
+            dvSlot.empty()
+            $.get('@Url.Action("CreateSlot")', { ClientId: clientId, Category: category, Day: datepart[0], StartDate: startDate }).done(function (d) {
+                debugger
+                getTimeSlot(startDate, category)
+            }).fail(function (e) {
+                debugger
+                ShowNotification('error', "Error!", e.responseJSON.message);
+            })
+        }
+        function changeAvailabilityStatus(id, e) {
+            $.get('@Url.Action("ChangeAvailabilityStatus")', { id: id }).done(function (d) {
+                debugger
+                if (d) {
+                    $(e).removeClass('btn-danger')
+                    $(e).addClass('btn-success')
+                }
+                else {
+                    $(e).addClass('btn-danger')
+                    $(e).removeClass('btn-success')
+                }
+            }).fail(function () {
+                ShowNotification('error', "Error!", "something went wrong");
+            })
+        }
+        function onChaneClient(e) {
+            $('#dvSlot').empty()
+            $('#datepicker-3').val('')
+            bindCategory($(e).val())
+        }
+        function bindCategory(clientId) {
+            $.get('api/apptcat/binddropdown-by-clientId/' + clientId).done(function (d) {
+                debugger
+                $('#select-category').empty().trigger("change");;
+                $('#select-category').select2({
+                    data:d,
+                    placeholder: "Select  Category"
+                }).trigger('change');
+            }).fail(function (e) {
+                ShowNotification('error', e.responseText)
+            })
+            
+        }
+        
+    </script>
+}

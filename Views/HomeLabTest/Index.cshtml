@@ -1,0 +1,248 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+
+@section HeadBlock {
+    <link rel="stylesheet" media="screen, print" href="~/css/datagrid/datatables/datatables.bundle.css">
+    <link rel="stylesheet" media="screen, print" href="~/css/formplugins/select2/select2.bundle.css">
+    <link href="~/css/notifications/sweetalert2/sweetalert2.bundle.css" rel="stylesheet" />
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div id="panel-1" class="panel">
+            <div class="panel-hdr">
+                <h2>
+                    All <span class="fw-300"><i>Home Lab Test</i></span>
+                </h2>
+                <div class="panel-toolbar">
+                    <button class="btn btn-panel" data-action="panel-collapse" data-toggle="tooltip" data-offset="0,10" data-original-title="Collapse"></button>
+                    <button class="btn btn-panel" data-action="panel-fullscreen" data-toggle="tooltip" data-offset="0,10" data-original-title="Fullscreen"></button>
+                    <button class="btn btn-panel" data-action="panel-close" data-toggle="tooltip" data-offset="0,10" data-original-title="Close"></button>
+                </div>
+            </div>
+            <div class="panel-container show">
+                <div class="panel-content">
+                    <div class="row">
+                      
+                            <div class="col-md-6">
+                                <label class="form-label">Clients</label>
+                                <select class="select2 form-control w-100" id="select-Clients" onchange="onChaneClient(this)" asp-items="ViewBag.Clients">
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Category</label>
+                                <select class="select2 form-control w-100" id="select-Category" onchange="onChaneCategory(this)">
+                                    <option value="HLC001">AHC</option>
+                                    <option value="HLC002">RTPCR</option>
+
+                                </select>
+                            </div>
+                      
+                    </div>
+                    <div class="col-md-12">
+                        <div class="tab-content pt-4">
+                            <div class="tab-pane fade show active" id="tab_default-1" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-xl-12  table-responsive" id="dt-hlt">
+                                        <table id="dt-setting" class="table table-bordered table-hover table-striped w-100">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        Name
+                                                    </th>
+                                                    <th>
+                                                        Email
+                                                    </th>
+                                                    <th>
+                                                        Mobile No.
+                                                    </th>
+                                                    <th>
+                                                        Gender
+                                                    </th>
+
+                                                    <th>
+                                                        Message
+                                                    </th>
+
+                                                    <th>
+                                                        Booking Date
+                                                    </th>
+                                                    <th>
+                                                        Date
+                                                    </th>
+                                                    <th>
+                                                        Time
+                                                    </th>
+                                                    <th>
+                                                        Booking Type
+                                                    </th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section ScriptsBlock {
+    <script src="~/js/datagrid/datatables/datatables.bundle.js"></script>
+<script src="~/js/datagrid/datatables/datatables.export.js"></script>
+    <script src="~/js/formplugins/select2/select2.bundle.js"></script>
+    <script src="~/js/notifications/sweetalert2/sweetalert2.bundle.js"></script>
+    <script>
+        let clientId = 0;
+        let category = '';
+        function onChaneClient(e) {
+
+            clientId = $(e).val();
+           
+
+        }
+        function onChaneCategory(e) {
+
+            category = $(e).val();
+            getAppointByClientId(clientId)
+
+        }
+        function getAppointByClientId(clientId) {
+            if (clientId == 0) {
+                ShowNotification('error', 'Error!', 'Please select a client')
+                return
+            }
+            if (category == '') {
+                ShowNotification('error', 'Error!', 'Please select a category')
+                return
+            }
+            ShowLoader()
+            $.get("@Url.Action("GetOtherBookingByClientId")", { clientId: clientId, category: category })
+                .done(function (d) {
+                    debugger
+                    $('#dt-hlt').empty()
+                    $('#dt-hlt').append(d)
+                    $('#dt-setting').dataTable({
+                        responsive: true,
+                        lengthChange: false,
+                        dom: "<'row mb-3'<'col-sm-12 col-md-6 d-flex align-items-center justify-content-start'f><'col-sm-12 col-md-6 d-flex align-items-center justify-content-end'lB>>" +
+                            "<'row'<'col-sm-12'tr>>" +
+                            "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                        buttons: [
+
+                            {
+                                extend: 'pdfHtml5',
+                                text: 'PDF',
+                                titleAttr: 'Generate PDF',
+                                title:'Home Lab Test',
+                                className: 'btn-outline-danger btn-sm mr-1'
+                            },
+                            {
+                                extend: 'excelHtml5',
+                                text: 'Excel',
+                                titleAttr: 'Generate Excel',
+                                title: 'Home Lab Test',
+                                className: 'btn-outline-success btn-sm mr-1'
+                            },
+                            {
+                                extend: 'csvHtml5',
+                                text: 'CSV',
+                                title: 'Home Lab Test',
+                                titleAttr: 'Generate CSV',
+                                className: 'btn-outline-primary btn-sm mr-1'
+                            },
+                            {
+                                extend: 'copyHtml5',
+                                text: 'Copy',
+                                title: 'Home Lab Test',
+                                titleAttr: 'Copy to clipboard',
+                                className: 'btn-outline-primary btn-sm mr-1'
+                            },
+                            {
+                                extend: 'print',
+                                text: 'Print',
+                                title: 'Home Lab Test',
+                                titleAttr: 'Print Table',
+                                className: 'btn-outline-primary btn-sm'
+                            }
+                        ]
+                    })
+                    HideLoader()
+                })
+                .fail(function (e) {
+                    HideLoader()
+                    ShowNotification('error', 'Error!', e.responseText)
+                })
+        }
+        $(document).ready(function () {
+            $('#select-Clients').prepend('<option selected></option>').select2({
+                placeholder: "Select  Clients"
+
+            })
+            $('#select-Category').prepend('<option selected></option>').select2({
+                placeholder: "Select  Category"
+
+            })
+            $('#dt-setting').dataTable()
+        })
+    </script>
+}
+
+
+<script>
+    $(document).ready(function () {
+
+        // initialize datatable
+        $('#dt-basic-example').dataTable(
+            {
+                responsive: true,
+                lengthChange: false,
+                dom:"<'row mb-3'<'col-sm-12 col-md-6 d-flex align-items-center justify-content-start'f><'col-sm-12 col-md-6 d-flex align-items-center justify-content-end'lB>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                buttons: [
+                   
+                    {
+                        extend: 'pdfHtml5',
+                        text: 'PDF',
+                        titleAttr: 'Generate PDF',
+                        className: 'btn-outline-danger btn-sm mr-1'
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: 'Excel',
+                        titleAttr: 'Generate Excel',
+                        className: 'btn-outline-success btn-sm mr-1'
+                    },
+                    {
+                        extend: 'csvHtml5',
+                        text: 'CSV',
+                        titleAttr: 'Generate CSV',
+                        className: 'btn-outline-primary btn-sm mr-1'
+                    },
+                    {
+                        extend: 'copyHtml5',
+                        text: 'Copy',
+                        titleAttr: 'Copy to clipboard',
+                        className: 'btn-outline-primary btn-sm mr-1'
+                    },
+                    {
+                        extend: 'print',
+                        text: 'Print',
+                        titleAttr: 'Print Table',
+                        className: 'btn-outline-primary btn-sm'
+                    }
+                ]
+            });
+
+    });
+
+</script>

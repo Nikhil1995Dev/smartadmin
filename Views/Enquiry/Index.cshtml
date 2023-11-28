@@ -1,0 +1,118 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+
+@section HeadBlock {
+    <link rel="stylesheet" media="screen, print" href="~/css/datagrid/datatables/datatables.bundle.css">
+    <link rel="stylesheet" media="screen, print" href="~/css/formplugins/select2/select2.bundle.css">
+    <link href="~/css/notifications/sweetalert2/sweetalert2.bundle.css" rel="stylesheet" />
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div id="panel-1" class="panel">
+            <div class="panel-hdr">
+                <h2>
+                    All <span class="fw-300"><i>Enquiries</i></span>
+                </h2>
+                <div class="panel-toolbar">
+                    <button class="btn btn-panel" data-action="panel-collapse" data-toggle="tooltip" data-offset="0,10" data-original-title="Collapse"></button>
+                    <button class="btn btn-panel" data-action="panel-fullscreen" data-toggle="tooltip" data-offset="0,10" data-original-title="Fullscreen"></button>
+                    <button class="btn btn-panel" data-action="panel-close" data-toggle="tooltip" data-offset="0,10" data-original-title="Close"></button>
+                </div>
+            </div>
+            <div class="panel-container show">
+                <div class="panel-content">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-label">Clients</label>
+                                <select class="select2 form-control w-100" id="select-Clients" onchange="onChaneClient(this)" asp-items="ViewBag.Clients">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="tab-content pt-4">
+                            <div class="tab-pane fade show active" id="tab_default-1" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-xl-12  table-responsive" id="dt-enquiry">
+                                        <table id="dt-setting" class="table table-bordered table-hover table-striped w-100">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        Name
+                                                    </th>
+                                                    <th>
+                                                        Email
+                                                    </th>
+                                                    <th>
+                                                        Mobile No.
+                                                    </th>
+                                                    <th>
+                                                        Gender
+                                                    </th>
+
+                                                    <th>
+                                                        Message
+                                                    </th>
+
+                                                    <th>
+                                                       Enquiery Date
+                                                    </th>
+
+                                                 
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section ScriptsBlock {
+    <script src="~/js/datagrid/datatables/datatables.bundle.js"></script>
+    <script src="~/js/formplugins/select2/select2.bundle.js"></script>
+    <script src="~/js/notifications/sweetalert2/sweetalert2.bundle.js"></script>
+    <script>
+        let clientId = 0;
+       
+        function onChaneClient(e) {
+
+            clientId = $(e).val();
+            getAppointByClientId(clientId)
+
+        }
+        function getAppointByClientId(clientId) {
+            ShowLoader()
+            $.get("@Url.Action("GetEnquiryByClientId")", { clientId: clientId })
+                .done(function (d) {
+                    debugger
+                    $('#dt-enquiry').empty()
+                    $('#dt-enquiry').append(d)
+                    $('#dt-setting').dataTable()
+                    HideLoader()
+                })
+                .fail(function (e) {
+                    HideLoader()
+                    ShowNotification('error', 'Error!', e.responseText)
+                })
+        }
+        $(document).ready(function () {
+            $('#select-Clients').prepend('<option selected></option>').select2({
+                placeholder: "Select  Clients"
+
+            })
+            $('#dt-setting').dataTable()
+        })
+    </script>
+}

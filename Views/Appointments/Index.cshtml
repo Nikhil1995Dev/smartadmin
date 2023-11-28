@@ -1,0 +1,256 @@
+﻿@model SmartAdmin.WebUI.ViewModels.AppointmentDocumentViewModel
+@{
+    ViewData["Title"] = "Index";
+}
+
+@section HeadBlock {
+    <link rel="stylesheet" media="screen, print" href="~/css/datagrid/datatables/datatables.bundle.css">
+    <link rel="stylesheet" media="screen, print" href="~/css/formplugins/select2/select2.bundle.css">
+    <link href="~/css/notifications/sweetalert2/sweetalert2.bundle.css" rel="stylesheet" />
+    <link rel="stylesheet" media="screen, print" href="~/css/formplugins/dropzone/dropzone.css">
+<style>
+    #doc-img:hover{
+        height:100%;
+        width:100%
+    }
+</style>
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div id="panel-1" class="panel">
+            <div class="panel-hdr">
+                <h2>
+                    Manage <span class="fw-300"><i>Appointments</i></span>
+                </h2>
+                <div class="panel-toolbar">
+                    <button class="btn btn-panel" data-action="panel-collapse" data-toggle="tooltip" data-offset="0,10" data-original-title="Collapse"></button>
+                    <button class="btn btn-panel" data-action="panel-fullscreen" data-toggle="tooltip" data-offset="0,10" data-original-title="Fullscreen"></button>
+                    <button class="btn btn-panel" data-action="panel-close" data-toggle="tooltip" data-offset="0,10" data-original-title="Close"></button>
+                </div>
+            </div>
+            <div class="panel-container show">
+                <div class="panel-content">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-label">Clients</label>
+                                <select class="select2 form-control w-100" id="select-Clients" onchange="onChaneClient(this)" asp-items="ViewBag.Clients">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="tab-content pt-4">
+                            <div class="tab-pane fade show active" id="tab_default-1" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-xl-12  table-responsive" id="dt-appointments">
+                                        <table id="dt-setting" class="table table-bordered table-hover table-striped w-100">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        Email
+                                                    </th>
+                                                    <th>
+                                                        Mobile No.
+                                                    </th>
+                                                    <th>
+                                                        Gender
+                                                    </th>
+
+                                                    <th>
+                                                        Booking Date
+                                                    </th>
+
+                                                    <th>
+                                                        Appointment Date
+                                                    </th>
+
+                                                    <th>
+                                                        Appointment Time(From-To)
+                                                    </th>
+                                                    <th>
+                                                        AppointMent Type
+                                                    </th>
+
+                                                    <th>
+                                                        Appointment Status
+                                                    </th>
+                                                    <th>
+                                                        Appointment Remark
+                                                    </th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="upload-modal-lg" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <div class="modal-dialog modal-lg" role="document">
+        <form id="frm-upload" asp-action="UploadDocument" method="post" data-ajax-begin="onBegin" data-ajax="true" data-ajax-method="post" data-ajax-complete="onComleted" data-ajax-success="onSuccess" data-ajax-failure="onFailure"  enctype="multipart/form-data">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><strong>Upload Document</strong></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true"><i class="@(Settings.Theme.IconPrefix) fa-times"></i></span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="panel-container show">
+                        <div class="panel-tag">
+                            <div class="row" id="documents" style="justify-content: space-around;">
+                                
+                            </div>
+                        </div>
+                   
+                        <div class="panel-content">
+                            <input type="file" multiple asp-for="Files" class="form-control" />
+                            <input type="hidden" asp-for="AppointmentId">
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+   
+</div>
+@section ScriptsBlock {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/datagrid/datatables/datatables.bundle.js"></script>
+    <script src="~/js/formplugins/select2/select2.bundle.js"></script>
+    <script src="~/js/notifications/sweetalert2/sweetalert2.bundle.js"></script>
+    <script src="~/js/formplugins/dropzone/dropzone.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.unobtrusive-ajax.js"></script>
+    <script>
+        let clientId = 0;
+        function ddlResponseStatus(id, e) {
+
+            Swal.fire({
+            title: "Are you sure?",
+            text: "You want to update status of this appointment",
+            type: "warning",
+            showCancelButton: true,
+                confirmButtonText: "Ok",
+                input: "text",
+                inputAttributes: {
+                    autocapitalize: "off",
+                    placeholder:'Enter remark'
+
+                },
+                showLoaderOnConfirm: true,
+            }
+            ).then(function (result) {
+                if (result.value) {
+                    let ststusid = $(e).val();
+                    let remark = result.value;
+                    $.post("@Url.Action("UpdateAppointmentStatus")", {
+                        Id: id
+                        , appointmentStatus: ststusid,
+                        appointmentRemark: remark
+                    }, function (message) {
+                        debugger
+                        Swal.fire(message);
+                    })
+
+
+                }
+                else {
+                    ShowNotification('warning','Appointment Status','Please enter remark before change appointment status')
+                }
+            });
+        }
+        function onChaneClient(e) {
+
+            clientId = $(e).val();
+            getAppointByClientId(clientId)
+
+        }
+        function getAppointByClientId(clientId) {
+            ShowLoader()
+            $.get("@Url.Action("GetAppointmentsByClientId")", { clientId: clientId })
+                .done(function (d) {
+                    debugger
+                    $('#dt-appointments').empty()
+                    $('#dt-appointments').append(d)
+                    $('#dt-setting').dataTable()
+                    HideLoader()
+                })
+                .fail(function (e) {
+                    HideLoader()
+                    ShowNotification('error', 'Error!', e.responseText)
+                })
+        }
+        $(document).ready(function () {
+            $('#select-Clients').prepend('<option selected></option>').select2({
+                placeholder: "Select  Clients"
+
+            })
+            $('#dt-setting').dataTable()
+        })
+
+        function uploadDocument(appointmentid) {
+            $('#AppointmentId').val(appointmentid)
+            getAllDocuments(appointmentid)
+        }
+         var onBegin = () => ShowLoader()
+        var onComleted = function () {
+            debugger
+          
+            getAllDocuments($('#AppointmentId').val())
+            $('#upload-modal-lg').modal('hide')
+            $('#frm-upload')[0].reset()
+            
+
+        HideLoader()
+        }
+        var onSuccess = () => ShowNotification("success", "Success!", "Document uploaded successfully")
+        var onFailure = function (e) {
+            debugger
+        HideLoader()
+        ShowNotification("error", "Error!", e.responseText)
+    }
+
+        function getAllDocuments(appointmentid) {
+            $.get('@Url.Action("GetAllDocuments")', { appointmentid: appointmentid })
+                .done(function (d) {
+                    debugger
+                    let element = $('#documents');
+                    element.empty();
+                    if (d.length > 0) {
+                       
+                        $.each(d, function (i, v) {
+                            element.append('<img id="doc-img"  style="border:dotted double solid" height="100px" width=100px src="/Uploads/AppointmentDocument' + "/" + v.name + '"/>')
+
+                        })
+                    }
+                    })
+                        .fail(function (error) {
+                            ShowNotification('error', 'Error!', error.responseText)
+                        })
+                    
+          
+        }
+    </script>
+}

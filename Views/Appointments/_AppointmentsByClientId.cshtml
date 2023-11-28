@@ -1,0 +1,92 @@
+﻿@model IEnumerable<SmartAdmin.WebUI.ViewModels.AppointmentsViewModel>
+@{ 
+    Layout = null;
+}
+<table id="dt-setting" class="table table-bordered table-hover table-striped w-100">
+    <thead>
+        <tr>
+            <th>
+                Email
+            </th>
+            <th>
+                Mobile No.
+            </th>
+            <th>
+                Gender
+            </th>
+
+            <th>
+                Booking Date
+            </th>
+
+            <th>
+                Appointment Date
+            </th>
+            
+            <th>
+                Appointment Time(From-To)
+            </th>
+            <th>
+                AppointMent Type
+            </th>
+
+            <th>
+                Appointment Status
+            </th>
+            <th>
+                Appointment Remark
+            </th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User.Email)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User.PhoneNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User.Gender)
+                </td>
+                <td>
+                    @Html.Raw(item.CreatedOn.Value.ToString("dd MMM yyyy"))
+                </td>
+                <td>
+                    @Html.Raw(item.AppointmentDate.Value.ToString("dd MMM yyyy"))
+                </td>
+
+                <td>
+                    @Html.Raw(item.AppointMentFromString + " To " + item.AppointMentToString)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.AppointMentType)
+                </td>
+
+                <td>
+                    <select onchange="ddlResponseStatus('@item.Id', this)" class="form-control">
+                        @{string html = ""; }
+                            @foreach (var option in ViewBag.ResponseStatus)
+                            {
+
+                                html+= "<option value=" +option.Value+" "+(option.Value == item.AppointmentStatus.Value.ToString() ? "selected" : "") + ">"+ option.Text+"</option>";
+
+                            }
+                        @Html.Raw(html);
+                    </select>
+
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AppointmentRemark)
+                </td>
+                <td>
+                    <span data-toggle="modal" data-target="#upload-modal-lg"><a onclick="uploadDocument('@item.Id')" href='javascript:void(0);' class='btn btn-sm btn-icon btn-info rounded-circle mr-1' title='Upload Documents'><i class="fal fa-upload"></i></a></span> 
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

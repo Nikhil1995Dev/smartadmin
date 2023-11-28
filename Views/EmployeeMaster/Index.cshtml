@@ -1,0 +1,122 @@
+﻿
+@section HeadBlock {
+    <link rel="stylesheet" media="screen, print" href="~/css/datagrid/datatables/datatables.bundle.css">
+    <link rel="stylesheet" media="screen, print" href="~/css/formplugins/select2/select2.bundle.css">
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div id="panel-1" class="panel">
+            <div class="panel-container show">
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <div class="form-group">
+                            <label class="form-label">Clients</label>
+                            <select class="select2 form-control w-100" id="select-Clients" onchange="onChaneClient(this)">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <table id="dt-list" class="table table-bordered table-hover table-striped w-100"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section ScriptsBlock {
+    <script src="~/js/datagrid/datatables/datatables.bundle.js"></script>
+    <script src="~/js/formplugins/select2/select2.bundle.js"></script>
+    <script>
+
+        
+        let clientId = 0;
+        const trueFalseOptions = ["false", "true"];
+        function fnLoadAllClients() {
+            //Load Comm list
+            $.ajax({
+                type: "GET",
+                url: "/api/client/lookuplist",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response != null) {
+                        $('#select-Clients').prepend('<option selected></option>').select2({
+                            data: response,
+                            placeholder: "Select  Clients"
+                        });
+
+                    } else {
+                        alert("Something went wrong. " + response);
+                    }
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+        }
+        function onChaneClient(e) {
+            clientId = $(e).val();
+            fnlLoadUsersDataTable(clientId)
+        }
+        function fnlLoadUsersDataTable(clientId) {
+            debugger
+            $('#dt-list').DataTable({
+                dom: "<'row mb-3'<'col-sm-12 col-md-6 d-flex align-items-center justify-content-start'f><'col-sm-12 col-md-6 d-flex align-items-center justify-content-end'B>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                destroy: true,
+                responsive: true,
+             
+
+                ajax: "/EmployeeMaster/GetEmployeeByClientId?id="+clientId,
+                columns: [
+                    { title: "Employee Code", data: "employeeCode" },
+                    { title: "First Name", data: "firstName" },
+                    { title: "Last Name", data: "lastName" },
+                    { title: "Age", data: "age" },
+                    {
+                        title: "Gender", data: "gender"
+                    },
+                    {
+                        title: "Email", data: "email"
+                    },
+
+                    {
+                        title: "Phone Number", data: "phoneNumber", 
+                    },
+                    {
+                        title: "Is Dependant",
+                        data: "isDependent",
+                        
+                        render: function (data) {
+                            return `<input type="checkbox"  disabled ${data ? "checked" : ""}>`;
+                        }
+                    },
+                    {
+                        title: "Is Covered",
+                        data: "isCovered",
+
+                        render: function (data) {
+                            return `<input type="checkbox"  disabled ${data ? "checked" : ""}>`;
+                        }
+                    },
+                    { title: "Dependant Type", data: "dependantType" },
+                    
+                ]
+              
+            });
+        }
+        $(document).ready(function () {
+            fnLoadAllClients()
+            fnlLoadUsersDataTable(clientId)
+        })
+    </script>
+   
+}

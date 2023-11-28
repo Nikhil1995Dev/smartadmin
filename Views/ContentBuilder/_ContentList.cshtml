@@ -1,0 +1,38 @@
+﻿@model IEnumerable<SmartAdmin.WebUI.ViewModels.CMSViewModel>
+<div class="col-xl-12" id="tblcontent">
+    <table id="dt-Content" class="table table-bordered table-hover table-striped w-100">
+        <thead>
+            <tr>
+
+                <th>
+                    @Html.DisplayNameFor(model => model.Title)
+                </th>
+
+
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Title)
+                    </td>
+                    @*<td>
+                            @Html.DisplayFor(modelItem => item.Content)
+                        </td>*@
+
+                <td>
+
+                    @Html.ActionLink("Edit", "Edit", "ContentBuilder", new { id = item.Id }, new { @class = "btn btn-info" }) &nbsp;
+                    <a class="btn btn-danger" onclick="deleteContent('@item.Id')">Delete</a>
+                    <a class="btn btn-primary" onclick="copyContent('@item.Id')">Copy</a>
+
+                </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

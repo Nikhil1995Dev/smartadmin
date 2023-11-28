@@ -1,0 +1,138 @@
+﻿@model SmartAdmin.WebUI.ViewModels.ImageGallaryViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+@section HeadBlock {
+    <link rel="stylesheet" media="screen, print" href="~/css/datagrid/datatables/datatables.bundle.css">
+    <link href="~/css/notifications/sweetalert2/sweetalert2.bundle.css" rel="stylesheet" />
+<style>
+    .img-gal:hover
+    {
+        height:100%;
+        width:100%
+    }
+</style>
+}
+<div class="row">
+    <div class="col-xl-12">
+        <div id="panel-1" class="panel">
+            <div class="panel-hdr">
+                <h2>
+                    Image  <span class="fw-300"><i>Gallary</i></span>
+                </h2>
+                <div class="panel-toolbar">
+                    <button class="btn btn-panel" data-action="panel-collapse" data-toggle="tooltip" data-offset="0,10" data-original-title="Collapse"></button>
+                    <button class="btn btn-panel" data-action="panel-fullscreen" data-toggle="tooltip" data-offset="0,10" data-original-title="Fullscreen"></button>
+                    <button class="btn btn-panel" data-action="panel-close" data-toggle="tooltip" data-offset="0,10" data-original-title="Close"></button>
+                </div>
+            </div>
+            <div class="panel-container show">
+                <div class="panel-content">
+                    <div class="panel-tag">
+                        <form id="frm-gal" asp-action="Create" method="post" data-ajax-begin="onBegin" data-ajax="true" data-ajax-method="post" data-ajax-complete="onComleted" data-ajax-success="onSuccess" data-ajax-failure="onFailure" enctype="multipart/form-data">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Title" class="control-label"></label>
+                                        <textarea asp-for="Title" class="form-control"></textarea>
+                                        <span asp-validation-for="Title" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="ImageName" class="control-label"></label>
+                                        <input asp-for="file" class="form-control" />
+                                        <span asp-validation-for="file" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                </div>
+
+                                <div class="col-md-12" style="display:flex;justify-content:flex-end">
+                                    <button type="submit"   class="btn btn-primary">Upload</button>
+                                </div>
+</form>
+                    </div>
+                    <div class="tab-content pt-4">
+                        <div class="tab-pane fade show active" id="tab_default-1" role="tabpanel">
+                          
+                        </div>
+                     
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="imgList">
+
+</div>
+
+@section ScriptsBlock {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/datagrid/datatables/datatables.bundle.js"></script>
+    <script src="~/js/notifications/sweetalert2/sweetalert2.bundle.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.unobtrusive-ajax.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            loadData()
+            
+        })
+    var onBegin = () => ShowLoader()
+        var onComleted = function () {
+            $('#frm-gal')[0].reset()
+       
+        loadData();
+        HideLoader()
+        }
+        var onSuccess = () => ShowNotification("success", "Success!", "Image uploaded successfully")
+        var onFailure = function (e) {
+            debugger
+        HideLoader()
+        ShowNotification("error", "Error!", e.responseText)
+    }
+        function loadData() {
+            ShowLoader()
+        $.get('@Url.Action("GetImageList")').done(function (d) {
+            $('#tab_default-1').html(d);
+            $('#dt-gal').dataTable()
+            HideLoader()
+        }).fail(function (e) {
+            HideLoader()
+            ShowNotification("error", "Error!", e.responseText)
+        })
+
+        }
+         function deleteImage(id) {
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You want to delete this!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!"
+            }).then(function (result) {
+                if (result.value) {
+                    ShowLoader()
+                    $.get("@Url.Action("Delete")", { id: id }).done(function (d) {
+                        HideLoader();
+                        Swal.fire("deleted!", "Image deleted successfully", "success");
+                        loadData()
+                    }).fail(function (d) {
+                        HideLoader()
+                        Swal.fire("oops!", d.responseJSON.message, "error");
+                    })
+
+
+                }
+            });
+        }
+        function onMouseOver(e) {
+            $(e).css({ 'height': '100%', 'width': '100%' });
+        }
+    </script>
+}

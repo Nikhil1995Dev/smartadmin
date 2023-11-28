@@ -1,0 +1,199 @@
+﻿@model IEnumerable<SmartAdmin.WebUI.ViewModels.CMSViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+@section HeadBlock {
+    <link rel="stylesheet" media="screen, print" href="~/css/datagrid/datatables/datatables.bundle.css">
+    <link href="~/css/notifications/sweetalert2/sweetalert2.bundle.css" rel="stylesheet" />
+    <link rel="stylesheet" media="screen, print" href="~/css/formplugins/select2/select2.bundle.css">
+}
+<div class="row">
+    <div class="col-xl-12">
+        <div id="panel-1" class="panel">
+            <div class="panel-hdr">
+                <h2>
+                    <a class="btn btn-link" href="@Url.Action("Create")">Create New</a>
+                </h2>
+                <div class="panel-toolbar">
+                    <button class="btn btn-panel" data-action="panel-collapse" data-toggle="tooltip" data-offset="0,10" data-original-title="Collapse"></button>
+                    <button class="btn btn-panel" data-action="panel-fullscreen" data-toggle="tooltip" data-offset="0,10" data-original-title="Fullscreen"></button>
+                    <button class="btn btn-panel" data-action="panel-close" data-toggle="tooltip" data-offset="0,10" data-original-title="Close"></button>
+                </div>
+            </div>
+            <div class="panel-container show">
+                <div class="panel-content">
+                    <div class="tab-content pt-4">
+                        <div class="tab-pane fade show active" id="tab_default-1" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="form-label">Clients</label>
+                                        <select class="select2 form-control w-100" id="select-Clients" onchange="onChaneClient(this)" asp-items="ViewBag.Clients">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xl-12" id="tblcontent">
+                                    <table id="dt-Content" class="table table-bordered table-hover table-striped w-100">
+                                        <thead>
+                                            <tr>
+
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Title)
+                                                </th>
+
+
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="content-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"> Copy Content</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"><i class="@(Settings.Theme.IconPrefix) fa-times"></i></span>
+                </button>
+            </div>
+            <div class="modal-body">
+               
+                    <div class="form-group">
+                        <label class="form-label">Clients</label>
+                        <select class="select2 form-control w-100" id="select-Clients2" asp-items="ViewBag.Clients">
+                        </select>
+                    </div>
+                
+               
+                    <div class="form-group">
+                        <label class="control-label">Title</label>
+                        <input class="form-control" id="title" />
+                    </div>
+                
+               
+                    <div class="form-group">
+                        <label class="control-label">Content</label>
+                        <textarea class="form-control" id="content"></textarea>
+
+                    </div>
+                    
+                
+            </div>
+             <div class="modal-footer">
+                            <button type="button" onclick="saveCopiedContent()" class="btn btn-success">Save</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+        </div>
+    </div>
+</div>
+@section ScriptsBlock {
+    <script src="~/js/datagrid/datatables/datatables.bundle.js"></script>
+    <script src="~/js/notifications/sweetalert2/sweetalert2.bundle.js"></script>
+    <script src="~/js/formplugins/select2/select2.bundle.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#dt-Content').dataTable()
+            $('#select-Clients').prepend('<option selected></option>').select2({
+                placeholder: "Select  Clients"
+            })
+            $('#select-Clients2').prepend('<option selected></option>').select2({
+                placeholder: "Select  Clients",
+                dropdownParent: $('#content-modal')
+
+            })
+        })
+        function deleteContent(id) {
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You want to delete this!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!"
+            }).then(function (result) {
+                if (result.value) {
+                    ShowLoader()
+                    $.get("@Url.Action("Delete")", { id: id }).done(function (d) {
+
+                        window.location.reload()
+                    }).fail(function (d) {
+                        HideLoader()
+                        Swal.fire("oops!", d.responseJSON.message, "error");
+                    })
+
+
+                }
+            });
+        }
+        function onChaneClient(e) {
+
+            clientId = $(e).val();
+            getContentsByClientId(clientId)
+
+        }
+        function getContentsByClientId(clientId) {
+            ShowLoader()
+            $.get("@Url.Action("Contents")", { clientId: clientId }).done(function (d) {
+                $('#tblcontent').empty()
+                $('#tblcontent').append(d)
+                $('#dt-Content').dataTable()
+                HideLoader()
+            }).fail(function (e) {
+                HideLoader()
+                ShowNotification('error', "Error!", e.responseText)
+            })
+        }
+        function copyContent(id) {
+            ShowLoader()
+            $.get('@Url.Action("GetContentById")', { id: id })
+                .done(function (d) {
+                    $('#content').val(d.content)
+                    $('#content-modal').modal('show')
+                    HideLoader()
+                }).fail(function (e) {
+                    HideLoader()
+                    ShowNotification('error', 'Error!', e.responseJSON.message)
+                })
+        }
+        function saveCopiedContent() {
+            let title = $('#title').val();
+            let content = $('#content').val();
+            let clientId = $('#select-Clients2').val();
+            if (clientId == '') {
+                ShowNotification('error', 'Error', 'Please select client')
+                return
+            }
+            if (title == '') {
+                ShowNotification('error', 'Error', 'Please enter  title')
+                return
+            }
+            ShowLoader()
+            $.post('@Url.Action("SaveCopiedContent")', { title: title, content: content, clientId: clientId })
+                .done(function () {
+                    debugger
+                    HideLoader()
+                    $('#content-modal').modal('hide')
+                    getContentsByClientId(clientId)
+                    ShowNotification('success','Saved','Content saved successfully')
+                }).fail(function (e) {
+                    HideLoader()
+                    ShowNotification('error', 'Error!', e.responseJSON.message)
+                })
+        }
+    </script>
+}

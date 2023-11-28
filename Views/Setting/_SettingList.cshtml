@@ -1,0 +1,28 @@
+﻿@model IEnumerable<SmartAdmin.WebUI.ViewModels.UserViewModel>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FirstName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastName)
+                </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.PhoneNumber)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Gender)
+        </td>
+
+
+                <td>
+            <a href="javascript:void(0)" onclick="EditUser('@item.Id')" title="Update Setting"><i class="fal fa-edit" style="font-size: 18px;"></i></a>
+                </td>
+            </tr>
+        }

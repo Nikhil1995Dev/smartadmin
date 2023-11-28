@@ -1,0 +1,195 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+
+@section HeadBlock {
+    <link rel="stylesheet" media="screen, print" href="~/css/datagrid/datatables/datatables.bundle.css">
+    <link rel="stylesheet" media="screen, print" href="~/css/formplugins/select2/select2.bundle.css">
+    <link rel="stylesheet" media="screen, print" href="~/css/formplugins/bootstrap-daterangepicker/bootstrap-daterangepicker.css">
+}
+<div class="row">
+    <div class="col-xl-12">
+        <div id="panel-1" class="panel">
+            <div class="panel-hdr">
+                <h2>
+                    Manage <span class="fw-300"><i>Timings</i></span>
+                </h2>
+                <div class="panel-toolbar">
+                    <button class="btn btn-panel" data-action="panel-collapse" data-toggle="tooltip" data-offset="0,10" data-original-title="Collapse"></button>
+                    <button class="btn btn-panel" data-action="panel-fullscreen" data-toggle="tooltip" data-offset="0,10" data-original-title="Fullscreen"></button>
+                    <button class="btn btn-panel" data-action="panel-close" data-toggle="tooltip" data-offset="0,10" data-original-title="Close"></button>
+                </div>
+            </div>
+            <div class="panel-container show">
+                <div class="panel-content">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-label">Clients</label>
+                                <select class="select2 form-control w-100" id="select-Clients" onchange="onChaneClient(this)" asp-items="ViewBag.Clients">
+                                </select>
+                             
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="tab-content pt-4">
+                            <div class="tab-pane fade show active" id="tab_default-1" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-xl-12">
+                                       
+                                        <table id="dt-timing" class="table table-bordered table-hover table-striped w-100">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        Client Name
+                                                    </th>
+                                                    <th>
+                                                        Day
+                                                    </th>
+                                                    <th>
+                                                        Morning
+                                                    </th>
+
+                                                    <th>Evening</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tbl_timing">
+                                               
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section ScriptsBlock {
+    <script src="~/js/datagrid/datatables/datatables.bundle.js"></script>
+    <script src="~/js/formplugins/select2/select2.bundle.js"></script>
+    <script src="~/js/dependency/moment/moment.js"></script>
+    <script src="~/js/formplugins/bootstrap-daterangepicker/bootstrap-daterangepicker.js"></script>
+    <script>
+        let clientId = 0;
+        function onChaneClient(e) {
+
+            clientId = $(e).val();
+            getTimingByClientId(clientId)
+          
+        }
+        function getTimingByClientId(clientId) {
+            ShowLoader()
+            $.get("/ManageTimings/GetTimingsByClientId", { clientId: clientId }).done(function (d) {
+                bindData(d)
+                $('.morning-slot').daterangepicker({
+                    timePicker: true,
+                    ampm: true,
+                    timePickerIncrement: 1,
+                    locale: {
+                        format: 'hh:mm a'
+                    },
+
+                }).on('show.daterangepicker', function (ev, picker) {
+                    picker.container.find(".calendar-table").hide();
+                });
+                $('.evening-slot').daterangepicker({
+                    timePicker: true,
+                    ampm: true,
+                    timePickerIncrement: 1,
+                    locale: {
+                        format: 'hh:mm a'
+                    }
+                }).on('show.daterangepicker', function (ev, picker) {
+                    picker.container.find(".calendar-table").hide();
+                });
+
+                HideLoader();
+            }).fail(function (e) {
+                ShowNotification('error', 'Error!', 'something went wrong');
+                HideLoader()
+            })
+           
+        }
+        $(document).ready(function () {
+            $('#select-Clients').prepend('<option selected></option>').select2({
+                placeholder: "Select  Clients"
+
+            })
+          
+        })
+        function bindData(data) {
+            debugger
+            $('#dt-timing').dataTable({
+             
+                destroy: true,
+                "data": data,
+                "columns": [
+                    { "data": "clientName" },
+                    { "data": "day" },
+                    {
+                        "data": "morning",
+                        "render": function (data, type, row) {
+                            debugger
+                            if (data) {
+
+                                return '<input type="text"   value="'+data+'" class="form-control morning-slot" />'
+                            }
+                            else {
+                                return '<input type="text"   class="form-control morning-slot" />'
+                            }
+
+                        }
+                    },
+
+                    {
+                        "data": "evening", "render": function (data, type, row) {
+                            if (data) {
+                                return '<input type="text"  value="' + data + '" class="form-control evening-slot" />'
+                            }
+                            else {
+                                return '<input type="text"   class="form-control evening-slot" />'
+                            }
+
+                        } },
+
+                    {
+                        "data": "id", "render": function (data, type, row) {
+
+                            return '<button class="btn-primary" onclick="saveChanges('+data+',this)">Save</button>';
+                        }
+                    },
+                ],
+
+                "language": {
+                    "emptyTable": "No data available in table"
+                }
+            });
+          
+        }
+     
+         function saveChanges(id,e) {
+             debugger
+             let tr = $(e).closest('tr')
+             let morning = $(tr).find("td:eq(2) input[type='text']").val().split('-');
+             let evening = $(tr).find("td:eq(3) input[type='text']").val().split('-');
+             let morningStart = morning[0]
+             let morningEnd = morning[1]
+             let eveningStart = evening[0]
+             let eveningEnd = evening[1]
+             $.post("@Url.Action("Edit")", { id: id, morningStartTime: morningStart, morningEndTime: morningEnd, eveningStartTime: eveningStart, eveningEndTime: eveningEnd }).done(function (data) {
+                 ShowNotification(data.status, 'Timing', data.message)
+                 getTimingByClientId(clientId)
+           
+            }).fail(function (data) {
+                ShowNotification('error', 'Setting', data.responseText)
+            })
+        }
+      
+    </script>
+}

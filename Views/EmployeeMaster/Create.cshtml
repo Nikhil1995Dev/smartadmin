@@ -1,0 +1,253 @@
+﻿@section HeadBlock{
+    <link href="~/css/datagrid/datatables/datatables.bundle.css" rel="stylesheet" />
+    <link rel="stylesheet" media="screen, print" href="~/css/formplugins/select2/select2.bundle.css">
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div id="panel-1" class="panel">
+            <div class="panel-hdr">
+                <h2>Upload execel file of employees</h2>
+
+            </div>
+            <div class="row">
+                <div class="col-md-8 offset-md-2">
+                    <div class="form-group">
+                        <label class="form-label">Clients</label>
+                        <select class="select2 form-control w-100" id="select-Clients" asp-items="ViewBag.Clients">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-container show">
+                <div class="panel-content">
+                    <div class="panel-tag">
+                        <form enctype="multipart/form-data">
+                            <div class="row">
+
+
+                                <div class="col-lg-4">
+                                    <label class="form-label"><i class="ni ni-cloud-upload"></i>&nbsp; Upload Employee Data Excel File</label>
+                                    <input class="form-control-file" id="upload" type=file name="files[]" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                </div>
+                                <div class="col-lg-8">
+                                    <label class="form-label"><i class="ni ni-cloud-download"></i>&nbsp;Download Excel File to fill employee record </label>
+                                    <br />
+                                    <a class="btn btn-primary" href="~/assets/EmployeeData.xls" download="EmployeeDataDemo">Download</a>
+                                </div>
+
+
+                            </div>
+                        </form>
+                    </div>
+                    <table class="table table-bordered table-hover table-striped w-100" id="dt-employee">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Email Id</th>
+                                <th>Gender</th>
+                                <th>Age</th>
+                                <th>Phone Number</th>
+                                <th>Is Dependant</th>
+                                <th>Dependant Type</th>
+                                <th>Is Covered</th>
+                                <th>Errors</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="11">
+                                    <button id="btnSave" class="btn btn-success pull-right" disabled onclick="saveData()">Save</button>
+                                </td>
+                            </tr>
+
+                        </tfoot>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section ScriptsBlock{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
+    <script src="~/js/datagrid/datatables/datatables.bundle.js"></script>
+    <script src="~/js/formplugins/select2/select2.bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-loading-overlay/2.1.7/loadingoverlay.min.js" integrity="sha512-hktawXAt9BdIaDoaO9DlLp6LYhbHMi5A36LcXQeHgVKUH6kJMOQsAtIw2kmQ9RERDpnSTlafajo6USh9JUXckw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        $(document).ready(function () {
+            $('#select-Clients').prepend('<option selected></option>').select2({
+                placeholder: "Select  Clients"
+
+            })
+            $('#dt-setting').dataTable()
+        })
+        var ExcelToJSON = function () {
+            this.parseExcel = function (file) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var data = e.target.result;
+                    var workbook = XLSX.read(data, {
+                        type: 'binary'
+                    });
+                    workbook.SheetNames.forEach(function (sheetName) {
+                        var XL_row_object = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
+                        bindData(XL_row_object)
+                    })
+                };
+                reader.onerror = function (ex) {
+                    console.log(ex);
+                };
+
+                reader.readAsBinaryString(file);
+            };
+        };
+
+        function handleFileSelect(evt) {
+            $('#dt-employee tbody').empty();
+            isvalid=true
+            var files = evt.target.files; // FileList object
+            if (!validateFile(files[0])) {
+                ShowNotification('error', 'Unsupported file', 'Only Execel files are supported')
+                return false
+            }
+            var xl2json = new ExcelToJSON();
+            xl2json.parseExcel(files[0]);
+        }
+        document.getElementById('upload').addEventListener('change', handleFileSelect, false);
+
+        let isvalid = true;
+        //bind datatable
+        function bindData(data) {
+         var table=   $('#dt-employee tbody')
+            for (i = 0; i < data.length; i++) {
+                data[i].EmployeeCode == undefined ? data[i].EmployeeCode = '' : data[i].EmployeeCode
+                data[i].FirstName == undefined ? data[i].FirstName = '' : data[i].FirstName
+                data[i].LastName == undefined ? data[i].LastName = '' : data[i].LastName
+                data[i].EmailId == undefined ? data[i].EmailId = '' : data[i].EmailId
+                data[i].Gender == undefined ? data[i].Gender = '' : data[i].Gender
+                data[i].Age == undefined ? data[i].Age = '' : data[i].Age
+                data[i].PhoneNumber == undefined ? data[i].PhoneNumber = '' : data[i].PhoneNumber
+
+                data[i].DependantType == undefined ? data[i].DependantType = '' : data[i].DependantType
+                let tr = '<tr><td>' + data[i].EmployeeCode + '</td><td>' + data[i].FirstName + '</td><td>' + data[i].LastName + '</td><td>' + data[i].EmailId + '</td><td>' + data[i].Gender + '</td><td>' + data[i].Age + '</td><td>' + data[i].PhoneNumber + '</td><td>' + data[i].IsDependent + '</td><td>' + data[i].DependantType
+ + '</td><td>' + data[i].IsCovered + '</td><td><span class="text-danger">' + validate(data[i]) + '</span></td></tr>'
+                table.append(tr)
+            }
+            if (isvalid)
+            {
+                 $('#btnSave').removeAttr('disabled')
+
+            }
+
+            else {
+             $('#btnSave').attr('disabled', true)
+
+            }
+
+        }
+        function validate(row) {
+            debugger
+            let validation = ''
+            let validTrueFalse = ["true", "false"]
+            row.IsDependent = row.IsDependent == undefined ? '' : row.IsDependent
+            row.IsCovered = row.IsCovered == undefined ? '' : row.IsCovered
+                            row.IsDependent = row.IsDependent.toLowerCase()
+                            row.IsCovered = row.IsCovered.toLowerCase()
+            if (row.EmployeeCode == '' || row.EmployeeCode == undefined) {
+                validation += 'Employee code is required, ';
+                isvalid = false
+            }
+            if (row.FirstName == '' || row.FirstName == undefined) {
+                validation += 'First Name  is required, '
+                               isvalid = false
+            }
+            if (row.LastName == '' || row.LastName == undefined) {
+                validation += 'Last Name  is required, '
+                isvalid = false
+            }
+            if (row.IsDependent =='false') {
+                if (row.EmailId == '' || row.EmailId == undefined) {
+                    validation += 'Email Id  is required, '
+                    isvalid = false
+                }
+            }
+
+            if (row.Gender == '' || row.Gender == undefined) {
+                validation += 'Gender   is required, '
+                isvalid = false
+            }
+            if (row.Age == '' || row.Age == undefined) {
+                validation += 'Age   is required, '
+                isvalid = false
+            }
+            if (row.PhoneNumber == '' || row.PhoneNumber == undefined) {
+                validation += 'Phone Number   is required, '
+                isvalid = false
+            }
+            if (!validTrueFalse.includes(row.IsDependent)) {
+                                validation += 'please enter true or false for Is Dependent, '
+                                isvalid = false
+            }
+            if (!validTrueFalse.includes(row.IsCovered)) {
+                                validation += 'please enter true or false for Is Covered, '
+                               isvalid = false
+            }
+            return validation;
+        }
+        function saveData() {
+            var clientId = $('#select-Clients').val();
+            if (clientId === '') {
+                ShowNotification('error', 'Error!', 'Please select a client');
+                return false
+            }
+            var data=[]
+            var tabel = $('#dt-employee tbody')[0]
+            for (i = 0; i < tabel.rows.length; i++) {
+                var objCells = tabel.rows.item(i).cells;
+                var d = {
+                    employeeCode: objCells[0].outerText,
+                    firstName: objCells[1].outerText,
+                    lastName: objCells[2].outerText,
+                    email: objCells[3].outerText,
+                    gender: objCells[4].outerText,
+                    age: objCells[5].outerText,
+                    phoneNumber: objCells[6].outerText,
+                    isDependent: objCells[7].outerText,
+                    dependantType: objCells[8].outerText,
+                    isCovered: objCells[9].outerText,
+                    createdDate: '@DateTime.Now',
+                    createdBy: '@User.Identity.Name',
+                    isActive: true,
+                    clientId:clientId,
+                }
+                data.push(d);
+            }
+            ShowLoader()
+            $.post("@Url.Action("Create")", { model: data }).done(function (d) {
+                HideLoader()
+               /* $('#dt-employee tbody').empty()*/
+              /*  $('#btnSave').attr('disabled', true)*/
+
+                ShowNotification('success', 'Success!', d)
+            }).fail(function (e) {
+                HideLoader()
+                ShowNotification('error', 'Error!', e.responseJSON.message)
+            })
+        }
+        function validateFile(file) {
+            if (file.type == "application/vnd.ms-excel" || file.type =="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+                return true
+            }
+            else {
+                return false;
+            }
+        }
+
+    </script>
+}

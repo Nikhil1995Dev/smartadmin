@@ -1,0 +1,274 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+
+@section HeadBlock {
+    <link href="~/css/jstree/style.min.css" rel="stylesheet" />
+    <link href="~/css/notifications/sweetalert2/sweetalert2.bundle.css" rel="stylesheet" />
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div id="panel-1" class="panel"
+             data-panel-collapsed
+             data-panel-fullscreen
+             data-panel-close
+             data-panel-locked
+             data-panel-refresh
+             data-panel-reset
+             data-panel-color
+             data-panel-custombutton>
+            <div class="panel-hdr">
+                <div class="col-lg-8">
+                    <div class="form-group">
+                        <div data-toggle="modal" data-target="#add-new-cat-modal">
+                            <h2>
+                                <i class="fal fa-folder-plus fa-2x mr-2"></i> Add  <span class="fw-300">New Category</span>
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-6" id='treeview'></div>
+                <div class="col-md-3 jstree-column column1Tree hidden-sm hidden-xs"></div>
+                <div class="col-md-3 jstree-column column2Tree hidden-sm hidden-xs"></div>
+            </div>
+            <div class="row" id="dvnorecords" style="display:none;">
+                <div class="col-md-12" style="        text-align: center;color: #fd3995">
+                    <h4>No files found</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="add-new-cat-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Category</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"><i class="@(Settings.Theme.IconPrefix) fa-times"></i></span>
+                </button>
+            </div>
+            <div class="modal-body" id="add-new-cat">
+                <partial name="_CreateCategory" />
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="update-cat-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Category</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"><i class="@(Settings.Theme.IconPrefix) fa-times"></i></span>
+                </button>
+            </div>
+            <div class="modal-body" id="update-cat">
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="cat-details-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"> Category Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"><i class="@(Settings.Theme.IconPrefix) fa-times"></i></span>
+                </button>
+            </div>
+            <div class="modal-body" id="cat-details">
+
+            </div>
+
+        </div>
+    </div>
+</div>
+@section ScriptsBlock {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/jstree/jstree.min.js"></script>
+    <script src="~/js/jstree/jstree.columns.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.unobtrusive-ajax.js"></script>
+    <script src="~/js/notifications/sweetalert2/sweetalert2.bundle.js"></script>
+    <script>
+        var getNodeJSON = function (model) {
+            debugger;
+            return {
+                id: model.id,
+                data: {
+                }
+            }
+        }
+
+        $('#treeview').jstree({
+
+            'plugins': ['search', 'wholerow', 'types', 'ui', 'contextmenu', 'columns'], contextmenu: {
+                items: contextMenu
+            },
+            "search": {
+                "case_sensitive": false,
+                "show_only_matches": true
+            },
+            'core': {
+                'data': {
+                    'url': function (node) {
+                        debugger
+                        return node.id === '#' ? "/api/categories/getparent" : "/api/categories/getchildren/" + node.id;
+                    },
+                    'data': getNodeJSON,
+                    multiple: true
+                },
+                'check_callback': function (operation, node, node_parent, node_position, more) {
+                    return operation === 'rename_node' ? true : true;
+                }
+            },
+
+            'types': {
+                'default': {
+                    'icon': 'fal fa-file'
+                },
+                'folder': {
+                    'icon': 'fal fa-folder'
+                },
+                'file': {
+                    'icon': 'fal fa-file'
+                }
+            }
+        });
+
+        function contextMenu(node) {
+            var items = {};
+            items = {
+                'Add new category': {
+                    label: 'Add new category',
+                    icon: 'fal fa-file-plus',
+                    action: function (node_menu) {
+                        debugger
+                        currentNodeID = $('#treeview').jstree().get_selected("id")[0].id;
+                        $('#ParentId').val(currentNodeID)
+                        $('#add-new-cat-modal').modal('show');
+
+                    }
+                },
+                'Update category': {
+                    label: 'Edit category',
+                    icon: 'fal fa-edit',
+                    action: function (node_menu) {
+                        debugger
+                        currentNodeID = $('#treeview').jstree().get_selected("id")[0].id;
+                        openEditForm(currentNodeID)
+                    }
+                },
+                'Delete category': {
+                    label: 'Delete category',
+                    icon: 'fal fa-trash',
+                    action: function (node_menu) {
+                        debugger
+                        currentNodeID = $('#treeview').jstree().get_selected("id")[0].id;
+                        deleteCategory(currentNodeID)
+                    }
+                },
+                'Category Details': {
+                    label: 'Category Details',
+                    icon: 'fal fa-eye',
+                    action: function (node_menu) {
+                        debugger
+                        currentNodeID = $('#treeview').jstree().get_selected("id")[0].id;
+                        getCategory(currentNodeID)
+                    }
+                },
+            }
+            return items;
+        }
+
+    </script>
+    /* script for crud*/
+    <script>
+        onBegin = () => ShowLoader()
+        onCreateComleted = function () {
+            debugger
+            let currentNodeID = null;
+            let selectedParentnode = null;
+
+            if ($('#treeview').jstree().get_selected("id")[0] != null) {
+
+                currentNodeID = $('#treeview').jstree().get_selected("id")[0].id;
+                selectedParentnode = $('#treeview').jstree().get_top_selected();
+            }
+            if (currentNodeID == null)
+                $('#treeview').jstree().refresh();
+            else
+                $('#treeview').jstree().refresh_node(selectedParentnode);
+            ShowNotification('success', 'Category', 'Category Created Successfully');
+            $('#add-new-cat-modal').modal('hide');
+            resetCatForm()
+            HideLoader()
+        };
+        onUpdateComleted = function () {
+            $('#treeview').jstree(true).refresh();
+            ShowNotification('success', 'Category', 'Category Updated Successfully');
+            $('#update-cat-modal').modal('hide');
+            HideLoader()
+        };
+        function openEditForm(id) {
+            ShowLoader()
+            /*  $('#update-cat').load("/Categories/Edit?id=" + id)*/
+            $.get("/Categories/Edit", { id: id }).done(function (d) {
+                HideLoader()
+                $('#update-cat').html(d)
+                $('#update-cat-modal').modal('show');
+            }).fail(function (e) {
+                HideLoader()
+                ShowNotification('error', 'Error!', e.responseText)
+            })
+
+        }
+        function resetCatForm() {
+            $('#form-cat')[0].reset()
+        }
+        function deleteCategory(id) {
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You want to delete this!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!"
+            }).then(function (result) {
+                if (result.value) {
+                    ShowLoader()
+                    $.get("/Categories/Delete", { id: id }).done(function (d) {
+                        HideLoader()
+                        Swal.fire("Deleted!", "Your category has been deleted.", "success");
+                        $('#treeview').jstree(true).refresh();
+                    }).fail(function (d) {
+                        HideLoader()
+                        Swal.fire("oops!", d.responseJSON.message, "error");
+                    })
+
+
+                }
+            });
+        }
+        function getCategory(id) {
+            ShowLoader()
+            $.get("/Categories/Details", { id: id }).done(function (d) {
+                HideLoader()
+                $('#cat-details').html(d)
+                $('#cat-details-modal').modal('show')
+            }).fail(function (e) {
+                HideLoader()
+                ShowNotification('error', 'Error!', e.responseText)
+            })
+        }
+    </script>
+}
+

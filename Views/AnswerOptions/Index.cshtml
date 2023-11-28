@@ -1,0 +1,215 @@
+﻿@{ ViewData["Title"] = "Answer Options";
+    ViewData["PageName"] = "Answer Options";
+    ViewData["PageDescription"] = "Manage Answer Options"; }
+@section HeadBlock {
+    <link rel="stylesheet" media="screen, print" href="~/css/datagrid/datatables/datatables.bundle.css">
+    <link rel="stylesheet" media="screen, print" href="~/css/theme-demo.css">
+    <style>
+        .modal-content {
+            width: 800px
+        }
+    </style>
+}
+<div class="row">
+    <div class="col-xl-12">
+        <div id="panel-1" class="panel">
+            <div class="panel-hdr">
+                <h2>
+                    Manage HRA <span class="fw-300"><i>Answer Options</i></span>
+                </h2>
+                <div class="panel-toolbar">
+                    <button class="btn btn-panel" data-action="panel-collapse" data-toggle="tooltip" data-offset="0,10" data-original-title="Collapse"></button>
+                    <button class="btn btn-panel" data-action="panel-fullscreen" data-toggle="tooltip" data-offset="0,10" data-original-title="Fullscreen"></button>
+                    <button class="btn btn-panel" data-action="panel-close" data-toggle="tooltip" data-offset="0,10" data-original-title="Close"></button>
+                </div>
+            </div>
+            <div class="panel-container show">
+                <div class="panel-content">
+                    <div class="tab-content pt-4">
+                        <div class="tab-pane fade show active" id="tab_default-1" role="tabpanel">
+                            <div class="row">
+                                <div class="col-xl-12">
+                                    <input type="hidden" id="question-id" value="@ViewBag.Id" />
+                                    <table id="dt-answeropt" class="table table-bordered table-hover table-striped w-100"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <a href="/Question" class="btn btn-primary" style="float:right;margin-top:20px">Back to questions</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section ScriptsBlock {
+    <script src="~/js/datagrid/datatables/datatables.bundle.js"></script>
+    <script>
+	$(document).ready( function () {
+        const endpoint = 'api/answer-options'
+        let questionid = $('#question-id').val()
+		var columnSet = [{
+            data: "optionId",
+			"visible": false,
+			"searchable": false,
+			type: "hidden"
+        },
+            {
+                data: "questionId",
+                "visible": false,
+                "searchable": false,
+                type: "hidden"
+            },
+            {
+                data: "createdBy",
+                "visible": false,
+                "searchable": false,
+                type: "hidden"
+			},
+            {
+                data: "createdDate",
+                "visible": false,
+                "searchable": false,
+                type: "hidden"
+			},
+
+		{
+            title: "Title",
+            data: "optionTitle",
+            type: "text",
+            required: true
+		},
+		{
+            title: "Description",
+            data: "optionDesc",
+			type: "text",
+			required: true
+		},
+
+            {
+                title: "Active",
+                data: "isActive",
+                type: "select",
+                options: ['Yes', 'No'],
+                render: function (data) {
+                    return data == 1 ? 'Yes' : 'No'
+                }
+            },
+
+		{
+            title: "Sequence",
+            data: "optionSeq",
+            type: "number",
+            required: true
+		}]
+		/* start data table */
+        var dtansweropt = $('#dt-answeropt').dataTable({
+			/* check datatable buttons page for more info on how this DOM structure works */
+			dom: "<'row mb-3'<'col-sm-12 col-md-6 d-flex align-items-center justify-content-start'f><'col-sm-12 col-md-6 d-flex align-items-center justify-content-end'B>>" +
+				"<'row'<'col-sm-12'tr>>" +
+				"<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            ajax: endpoint+'/get-answeroption-byquestionid/'+questionid,
+			columns: columnSet,
+			select: 'single',
+			altEditor: true,
+			responsive: true,
+			/* buttons uses classes from bootstrap, see buttons page for more details */
+			buttons: [
+				{
+					extend: 'selected',
+					text: '<i class="@(Settings.Theme.IconPrefix) fa-times mr-1"></i> Delete',
+					name: 'delete',
+					className: 'btn-danger btn-sm mr-1'
+				},
+				{
+					extend: 'selected',
+					text: '<i class="@(Settings.Theme.IconPrefix) fa-edit mr-1"></i> Edit',
+					name: 'edit',
+                    className: 'btn-primary btn-sm mr-1 btnEdit',
+                    id:'btnEdit'
+				},
+				{
+					text: '<i class="@(Settings.Theme.IconPrefix) fa-plus mr-1"></i> Add',
+					name: 'add',
+                    className: 'btn-success btn-sm mr-1 btnAdd',
+                    id: 'btnAdd'
+				},
+				{
+					text: '<i class="@(Settings.Theme.IconPrefix) fa-sync mr-1"></i> Synchronize',
+					name: 'refresh',
+					className: 'btn-info btn-sm'
+				}
+			],
+
+			/* default callback for insertion: mock webservice, always success */
+            onAddRow: function (dt, rowdata, success, error) {
+                debugger
+                rowdata.questionId=questionid
+                rowdata.isActive = rowdata.isActive == 'Yes' ? true : false
+                $.ajax({
+					url: endpoint, type: 'POST', data: rowdata,
+                    error: error,
+                    success: function (data) {
+                        if (data) {
+                            ShowNotification('success', 'option', 'option created successfully')
+                            success(data)
+                        }
+                        else {
+                            ShowNotification('error', 'option', 'Unable to create option')
+                        }
+                    }
+                });
+
+			},
+            onEditRow: function (dt, rowdata, success, error) {
+                debugger
+                rowdata.questionId = questionid
+                rowdata.isActive = rowdata.isActive == 'Yes' ? true : false
+				$.ajax({
+					url: endpoint, type: 'PUT', data: rowdata,
+                    success: function (data) {
+                        if (data) {
+                            ShowNotification('success', 'option', 'option updated successfully')
+                            success(data)
+                        }
+                        else {
+                            ShowNotification('error', 'option', 'Unable to update option')
+                        }
+                    },
+                    error: error
+                });
+			},
+            onDeleteRow: function (dt, rowdata, success, error) {
+                rowdata.questionId = questionid
+                rowdata.isActive = rowdata.isActive == 'Yes' ? true : false
+                $.ajax({
+                    url: endpoint, type: 'DELETE', data: rowdata,
+                    success: function (data) {
+                        if (data) {
+                            ShowNotification('success', 'option', 'option deleted successfully')
+                            success(data)
+                        }
+                        else {
+                            ShowNotification('error', 'option', 'Unable to delete option')
+                        }
+                    },
+                    error: error
+                });
+			},
+        });
+        $('#dt-answeropt').on('click', '.btnAdd', function () {
+            $('#optionDesc').replaceWith('<textarea id="optionDesc" class="form-control"></textarea>');
+        })
+        $('#dt-answeropt_wrapper').on('click', '.btnEdit', function () {
+            debugger
+            let question = $(dtansweropt).find('tbody tr.selected td');
+            $('#optionDesc').replaceWith('<textarea id="optionDesc" class="form-control">' + question.eq(1).text() + '</textarea>');
+            $('#isActive option:contains(' + question.eq(2).text() + ')').attr('selected', 'selected');
+        })
+    });
+
+    </script>
+}

@@ -1,0 +1,26 @@
+﻿@model IEnumerable<SmartAdmin.WebUI.ViewModels.TimingViewModel>
+
+
+@foreach (var item in Model)
+{
+    <tr>
+
+        <td>
+            @Html.DisplayFor(modelItem => item.ClientName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Day)
+        </td>
+        <td>
+            <input type="text" value="@item.Morning" id="morning-slot-@item.Id" />
+
+        </td>
+        <td>
+            <input type="text" value="@item.Morning" class="evening-slot" />
+        </td>
+        <td>
+            <button class="btn-primary" onclick="saveChanges('@item.Id'))">Save</button>
+        </td>
+
+    </tr>
+}

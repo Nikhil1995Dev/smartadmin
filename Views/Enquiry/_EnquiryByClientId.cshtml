@@ -1,0 +1,59 @@
+﻿@model IEnumerable<SmartAdmin.WebUI.Models.ContactU>
+@{
+    Layout = null;
+}
+<table id="dt-setting" class="table table-bordered table-hover table-striped w-100">
+    <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                Email
+            </th>
+            <th>
+                Mobile No.
+            </th>
+            <th>
+                Gender
+            </th>
+
+            <th>
+                 Message
+            </th>
+
+            <th>
+                Enquiry Date
+            </th>
+
+          
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>
+                @Html.Raw(item.User.FirstName + " " + item.User.LastName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.User.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.User.PhoneNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.User.Gender)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Message)
+            </td>
+            <td>
+                @Html.Raw(item.CreatedOn.Value.ToString("dd MMM yyyy"))
+            </td>
+           
+
+        </tr>
+        }
+    </tbody>
+</table>

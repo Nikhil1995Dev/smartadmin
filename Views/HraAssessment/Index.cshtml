@@ -1,0 +1,153 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+
+@section HeadBlock {
+    <link rel="stylesheet" media="screen, print" href="~/css/datagrid/datatables/datatables.bundle.css">
+    <link rel="stylesheet" media="screen, print" href="~/css/formplugins/select2/select2.bundle.css">
+    <link href="~/css/notifications/sweetalert2/sweetalert2.bundle.css" rel="stylesheet" />
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div id="panel-1" class="panel">
+            <div class="panel-hdr">
+                <h2>
+                    Manage <span class="fw-300"><i>Assessment</i></span>
+                </h2>
+                <div class="panel-toolbar">
+                    <button class="btn btn-panel" data-action="panel-collapse" data-toggle="tooltip" data-offset="0,10" data-original-title="Collapse"></button>
+                    <button class="btn btn-panel" data-action="panel-fullscreen" data-toggle="tooltip" data-offset="0,10" data-original-title="Fullscreen"></button>
+                    <button class="btn btn-panel" data-action="panel-close" data-toggle="tooltip" data-offset="0,10" data-original-title="Close"></button>
+                </div>
+            </div>
+            <div class="panel-container show">
+                <div class="panel-content">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-label">Clients</label>
+                                <select class="select2 form-control w-100" id="select-Clients" onchange="onChaneClient(this)" asp-items="ViewBag.Clients">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="tab-content pt-4">
+                            <div class="tab-pane fade show active" id="tab_default-1" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-xl-12  table-responsive" id="dt-assessments">
+                                        <table id="dt-setting" class="table table-bordered table-hover table-striped w-100">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        Name
+                                                    </th>
+                                                    <th>
+                                                        Email
+                                                    </th>
+                                                    <th>
+                                                        Mobile No.
+                                                    </th>
+                                                    <th>
+                                                        Gender
+                                                    </th>
+
+
+
+                                                    <th>
+                                                       Assessment Date
+                                                    </th>
+
+                                                    <th>
+                                                       Question
+                                                    </th>
+                                                    <th>Answer</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="assessment-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Hra Assessment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"><i class="@(Settings.Theme.IconPrefix) fa-times"></i></span>
+                </button>
+            </div>
+            <div class="modal-body" id="assessment">
+
+            </div>
+            <div class="modal-footer">
+               
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section ScriptsBlock {
+    <script src="~/js/datagrid/datatables/datatables.bundle.js"></script>
+    <script src="~/js/formplugins/select2/select2.bundle.js"></script>
+    <script src="~/js/notifications/sweetalert2/sweetalert2.bundle.js"></script>
+    <script>
+        let clientId = 0;
+
+        function onChaneClient(e) {
+
+            clientId = $(e).val();
+            getAssesssmentByClientId(clientId)
+
+        }
+        function getAssesssmentByClientId(clientId) {
+            ShowLoader()
+            $.get("@Url.Action("GetAssessmentByClient")", { clientId: clientId })
+                .done(function (d) {
+                    debugger
+                    $('#dt-assessments').empty()
+                    $('#dt-assessments').append(d)
+                    $('#dt-setting').dataTable()
+                    HideLoader()
+                })
+                .fail(function (e) {
+                    HideLoader()
+                    ShowNotification('error', 'Error!', e.responseText)
+                })
+        }
+        $(document).ready(function () {
+            $('#select-Clients').prepend('<option selected></option>').select2({
+                placeholder: "Select  Clients"
+
+            })
+            $('#dt-setting').dataTable()
+        })
+        function getAssesstmentByUserId(id) {
+            
+             ShowLoader()
+            $.get("@Url.Action("GetAssessmentByUserId")", { UserId: id })
+                .done(function (d) {
+                    debugger
+                    $('#assessment').empty()
+                    $('#assessment').append(d)
+                    $('#assessment-modal').modal('show')
+                    HideLoader()
+                })
+                .fail(function (e) {
+                    HideLoader()
+                    ShowNotification('error', 'Error!', e.responseText)
+                })
+        }
+    </script>
+}

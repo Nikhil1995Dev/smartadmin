@@ -1,0 +1,330 @@
+﻿@page
+@model UserModel
+@{
+    ViewData["Title"] = "Users";
+    ViewData["PageName"] = "authorization_users";
+    ViewData["Heading"] = "<i class='fal fa-shield-alt'></i> Authorization: <span class='fw-300'>Users</span>";
+    ViewData["Category1"] = "Authorization";
+    ViewData["PageIcon"] = "fa-shield-alt";
+}
+
+@section HeadBlock {
+    <link rel="stylesheet" media="screen, print" href="~/css/datagrid/datatables/datatables.bundle.css">
+    <link rel="stylesheet" media="screen, print" href="~/css/formplugins/select2/select2.bundle.css">
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div id="panel-1" class="panel">
+            <div class="panel-container show">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-label">Clients</label>
+                            <select class="select2 form-control w-100" id="select-Clients" onchange="onChaneClient(this)">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <table id="dt-list" class="table table-bordered table-hover table-striped w-100"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="default-role-modal-lg" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><strong>User Role Details</strong></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"><i class="@(Settings.Theme.IconPrefix) fa-times"></i></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row" hidden>
+                    <div class="col-lg-2">
+                        <div class="form-group">
+                            <input type="text" id="input-User-ID" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="form-label" for="input-User-Name">User</label>
+                            <input type="text" id="input-User-Name" class="form-control" disabled>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label class="form-label">Roles</label>
+                            <select class="select2 form-control w-100" id="select-Permissions" >
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal" onclick="fnUpdateUserRoles()">Update</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section ScriptsBlock {
+    <script src="~/js/datagrid/datatables/datatables.bundle.js"></script>
+   
+    <script src="~/js/formplugins/select2/select2.bundle.js"></script>
+    <script>
+        
+        const endpoint = "/api/users";
+        let clientId=0;
+        const trueFalseOptions = ["false", "true"];
+        const genderOptions = ["Male", "Female","Other"];
+        function fnLoadAllRoles() {
+            //Load Comm list
+            $.ajax({
+                type: "GET",
+                url: "/api/userroles/lookuplist",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response != null) {
+                        $('#select-Permissions').prepend('<option selected></option>').select2({
+                            data: response,
+                            dropdownParent: $('#default-role-modal-lg'),
+                            placeholder: "Select user roles"
+                        });
+
+                    } else {
+                        alert("Something went wrong. " + response);
+                    }
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+        }
+
+        function fnLoadUserRoles(userid, rolename) {
+
+            $("#input-User-ID").val(userid);
+            $("#input-User-Name").val(rolename);
+
+            $.ajax({
+                type: "GET",
+                url: "/api/userroles/lookuplist/" + userid,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response != null) {
+
+                        var selectedOptions = response;
+
+                        $('#select-Permissions').val(selectedOptions);
+
+                        $('#select-Permissions').trigger('change');
+
+                    } else {
+                        alert("Something went wrong. " + response);
+                    }
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+        }
+
+        function fnUpdateUserRoles() {
+
+            var userid = $("#input-User-ID").val();
+
+            var permissions = $('#select-Permissions').select2('data');
+
+            var permissionsids = permissions.map(function (item) { return item.id; });
+
+            $.ajax({
+                url: "/api/userroles/adduserroles?userid=" + userid + "&permissions=" + permissionsids,
+                type: "POST",
+                contentType: false,
+                processData: false,
+                cache: false
+            }).done(function (data) {
+                ShowNotification(data.responseCode, 'User Roles', data.responseMessage);
+                $('#default-role-modal-lg').modal('hide');
+            });
+        }
+        function fnLoadAllClients() {
+            //Load Comm list
+            $.ajax({
+                type: "GET",
+                url: "/api/client/lookuplist",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response != null) {
+                        $('#select-Clients').prepend('<option selected value=""></option>').select2({
+                            data: response,
+                            placeholder: "Select  Clients"
+                        });
+
+                    } else {
+                        alert("Something went wrong. " + response);
+                    }
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+        }
+        function onChaneClient(e) {
+            clientId = $(e).val();
+            fnlLoadUsersDataTable(clientId)
+        }
+        function fnlLoadUsersDataTable(clientId) {
+            debugger
+            $('#dt-list').DataTable({
+                dom: "<'row mb-3'<'col-sm-12 col-md-6 d-flex align-items-center justify-content-start'f><'col-sm-12 col-md-6 d-flex align-items-center justify-content-end'B>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                destroy: true,
+                responsive: true,
+                altEditor: true,
+                select: { style: "single" },
+                buttons: [
+                    {
+                        extend: 'selected',
+                        text: '<i class="fal fa-times mr-1"></i> Delete',
+                        name: 'delete',
+                        className: 'btn-danger btn-sm mr-1'
+                    },
+                    {
+                        extend: 'selected',
+                        text: '<i class="fal fa-edit mr-1"></i> Edit',
+                        name: 'edit',
+                        className: 'btn-warning btn-sm mr-1 btnEdit'
+                    },
+                    {
+                        text: '<i class="fal fa-plus mr-1"></i> Add',
+                        name: 'add',
+                        className: 'btn-info btn-sm mr-1 btnAdd'
+                    },
+                    {
+                        text: '<i class="fal fa-sync mr-1"></i> Synchronize',
+                        name: 'refresh',
+                        className: 'btn-primary btn-sm'
+                    }
+                ],
+                ajax: endpoint + '/get-user-by-clientid/' + clientId,
+                columns: [
+                    { title: "Id", data: "id", type: "hidden", visible: false, searchable: false },
+                    { title: "Client Id", data: "clientId", type: "hidden", visible: false, searchable: false },
+                   
+                    { title: "First Name", data: "firstName", type:"text" },
+                    { title: "Last Name", data: "lastName", type:"text" },
+                    {
+                        title: "Gender", data: "gender", type:"text", type: "select",
+                        options: genderOptions, },
+                    {
+                        title: "Email", data: "email", type: 'text', pattern: "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
+                        placeholderMsg: "user@@domain.com",
+                        errorMsg: "*Invalid email - Enter valid email.",
+                        unique: true,
+
+                        uniqueMsg: "Email already in use", required: true },
+
+                    {
+                        title: "Password", type: "password", data: "passwordHash", visible: false
+                        , required: true
+                    },
+                    {
+                        title: "Is Active",
+
+
+                        data: "isActive",
+                        className: "text-center col-1",
+                        type: "select",
+                        options: trueFalseOptions,
+                        render: function (data) {
+                            return `<input type="checkbox" name="lockoutEnabled" disabled ${data ? "checked" : ""}>`;
+                        }
+                    },
+                    { title: "Phone Number", data: "phoneNumber" },
+                    //{
+                    //    title: "LockOut",
+                    //    data: "lockoutEnabled",
+                    //    className: "text-center col-1",
+                    //    type: "select",
+                    //    options: trueFalseOptions,
+                    //    render: function (data) {
+                    //        return `<input type="checkbox" name="lockoutEnabled" disabled ${data ? "checked" : ""}>`;
+                    //    }
+                    //},
+                    //{
+                    //    type:"hidden",
+                    //    title: 'Actions',
+                    //    orderable: false,
+                    //    data: 'concurrencyStamp',
+                    //    render: function (data, type, full, meta) {
+                    //        return "\n\t\t\t\t\t\t<span data-toggle=\"modal\" data-target=\"#default-role-modal-lg\" onclick=\"fnLoadUserRoles('" + full.id + "','" + full.userName + "')\"><a href='javascript:void(0);' class='btn btn-sm btn-icon btn-outline-danger rounded-circle mr-1' title='Show Details'>\n\t\t\t\t\t\t\t<i class=\"fal fa-file\"></i>\n\t\t\t\t\t\t</a></span>";
+                    //    }
+                    //}
+                ],
+                onAddRow: function (table, rowdata, success, error) {
+                    debugger
+                    rowdata.clientId = clientId
+
+                    $.ajax({
+                        url: endpoint, type: 'POST', data: rowdata, success: success, error: function (d) {
+                            debugger
+                            ShowNotification('error', 'Bad Request', d.responseText)
+                        }
+                    });
+                },
+                onDeleteRow: function (table, rowdata, success, error) {
+                    rowdata.clientId = clientId
+                    $.ajax({ url: endpoint, type: 'DELETE', data: rowdata, success: success, error: error });
+                },
+                onEditRow: function (table, rowdata, success, error) {
+                    rowdata.clientId = clientId
+                    $.ajax({ url: endpoint, type: 'PUT', data: rowdata, success: success(rowdata), error: error });
+                }
+            });
+
+                if (clientId == 0) {
+                    $('.btnAdd').attr('disabled',true)
+
+            }
+            $('#dt-list_wrapper').on('click', '.btnEdit', function () {
+                $('#passwordHash').parents('.form-group.row').css('display', 'none')
+            })
+        }
+
+    </script>
+    <script>
+        $(document).ready(function () {
+            debugger
+            fnlLoadUsersDataTable(clientId)
+            fnLoadAllRoles();
+            fnLoadAllClients();
+        });
+       
+    </script>
+}

@@ -1,0 +1,102 @@
+﻿@model SmartAdmin.WebUI.ViewModels.CategoryViewModel
+
+
+<div class="row">
+    <div class="col-xl-6">
+        <div id="panel-1" class="panel">
+            <div class="panel-hdr">
+                <h2>
+                    Edit <span class="fw-300"><i>Category</i></span>
+                </h2>
+                <div class="panel-toolbar">
+                    <button class="btn btn-panel" data-action="panel-collapse" data-toggle="tooltip" data-offset="0,10" data-original-title="Collapse"></button>
+                    <button class="btn btn-panel" data-action="panel-fullscreen" data-toggle="tooltip" data-offset="0,10" data-original-title="Fullscreen"></button>
+                    <button class="btn btn-panel" data-action="panel-close" data-toggle="tooltip" data-offset="0,10" data-original-title="Close"></button>
+                </div>
+            </div>
+            <div class="panel-container show">
+                <div class="panel-content">
+                    <div class="panel-tag">
+                        edit category
+                    </div>
+                    <form asp-action="Edit" enctype="multipart/form-data" method="post" data-ajax-begin="onBegin" data-ajax="true" data-ajax-method="post" data-ajax-complete="onUpdateComleted">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group" hidden>
+                            <label asp-for="Id" class="control-label"></label>
+                            <input asp-for="Id" class="form-control" />
+                            <span asp-validation-for="Id" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="CategoryName" class="control-label"></label>
+                            <input asp-for="CategoryName" class="form-control" />
+                            <span asp-validation-for="CategoryName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="CategoryDesc" class="control-label"></label>
+                            <input asp-for="CategoryDesc" class="form-control" />
+                            <span asp-validation-for="CategoryDesc" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="CatImage" class="control-label"></label>
+                            <div class="custom-file">
+                                <input type="file" asp-for="file" class="custom-file-input"/>
+                                <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
+                            <input type="hidden" asp-for="CatImage" class="form-control" />
+                            <span asp-validation-for="CatImage" class="text-danger"></span>
+                        </div>
+                        <div class="form-group" hidden>
+                            <label asp-for="ActionType" class="control-label"></label>
+                            <input asp-for="ActionType" class="form-control" />
+                            <span asp-validation-for="ActionType" class="text-danger"></span>
+                        </div>
+                        <div class="form-group" hidden>
+                            <label asp-for="ParentId" class="control-label"></label>
+                            <input asp-for="ParentId" class="form-control" />
+                            <span asp-validation-for="ParentId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group" hidden>
+                            <label asp-for="CreatedBy" class="control-label"></label>
+                            <input asp-for="CreatedBy" class="form-control" />
+                            <span asp-validation-for="CreatedBy" class="text-danger"></span>
+                        </div>
+                        <div class="form-group" hidden>
+                            <label asp-for="CreatedDate" class="control-label"></label>
+                            <input asp-for="CreatedDate" class="form-control" />
+                            <span asp-validation-for="CreatedDate" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group" hidden>
+                            <label asp-for="TmpImage" class="control-label"></label>
+                            <input asp-for="TmpImage" class="form-control" />
+                            <span asp-validation-for="TmpImage" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="CategoryKeyword" class="control-label"></label>
+                            <input asp-for="CategoryKeyword" class="form-control" />
+                            <span asp-validation-for="CategoryKeyword" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="CatSeq" class="control-label"></label>
+                            <input asp-for="CatSeq" class="form-control" />
+                            <span asp-validation-for="CatSeq" class="text-danger"></span>
+                        </div>
+                        <div class="form-group form-check">
+                            <label class="form-check-label">
+                                <input class="form-check-input" asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
+                            </label>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success">Save</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

@@ -1,0 +1,115 @@
+﻿{
+   "CodeGenerationMode": 1,
+   "ContextClassName": "ApplicationDbcontext",
+   "ContextNamespace": null,
+   "DefaultDacpacSchema": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "ModelNamespace": null,
+   "OutputContextPath": null,
+   "OutputPath": "Models",
+   "ProjectRootNamespace": "SmartAdmin.WebUI",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 0,
+   "SelectedToBeGenerated": 2,
+   "Tables": [
+      {
+         "Name": "[dbo].[AnswerOptions]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AppoinmentCategory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AppointmentCategoryMaster]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AppointmentDocument]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Appointments]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Availability]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[BroadCast]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Category]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Client]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ContactUs]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ContentManager]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmployeeMaster]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmployeeMasterArchieve]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[HraAssessment]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ImageGallary]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[OherBooking]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Questions]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Setting]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Timings]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Users]",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": "ALGOMONK-NET\\MSSQLSERVER2012.AMT_MyFitnessTeleMedicine_App",
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDbContextSplitting": false,
+   "UseFluentApiOnly": false,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": true,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoConstructor": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": false,
+   "UseSchemaFolders": false,
+   "UseSpatial": false
+}

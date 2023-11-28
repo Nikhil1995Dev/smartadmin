@@ -1,0 +1,259 @@
+﻿@{
+    ViewData["Title"] = "Appointment Categories";
+    ViewData["PageName"] = "AppointmentCategories";
+
+
+}
+
+@section HeadBlock {
+    <link rel="stylesheet" media="screen, print" href="~/css/datagrid/datatables/datatables.bundle.css">
+
+    <link rel="stylesheet" media="screen, print" href="~/css/formplugins/select2/select2.bundle.css">
+
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div id="panel-1" class="panel">
+            <div class="panel-hdr">
+                <h2>
+                    Manage <span class="fw-300"><i>Appointment Categories</i></span>
+                </h2>
+                <div class="panel-toolbar">
+                    <button class="btn btn-panel" data-action="panel-collapse" data-toggle="tooltip" data-offset="0,10" data-original-title="Collapse"></button>
+                    <button class="btn btn-panel" data-action="panel-fullscreen" data-toggle="tooltip" data-offset="0,10" data-original-title="Fullscreen"></button>
+                    <button class="btn btn-panel" data-action="panel-close" data-toggle="tooltip" data-offset="0,10" data-original-title="Close"></button>
+                </div>
+            </div>
+            <div class="panel-container show">
+                <div class="panel-content">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-label">Clients</label>
+                                <select class="select2 form-control w-100" id="select-Clients" onchange="onChaneClient(this)" asp-items="ViewBag.Clients">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="tab-content pt-4">
+                            <div class="tab-pane fade show active" id="tab_default-1" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-xl-12">
+                                        <table id="dt-apptcat" class="table table-bordered table-hover table-striped w-100">
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section ScriptsBlock {
+    <script src="~/js/datagrid/datatables/datatables.bundle.js"></script>
+    <script src="~/js/formplugins/select2/select2.bundle.js"></script>
+
+    <script>
+        const endpoint = "api/apptcat";
+        let clientId=0
+        var catOps = [];
+         function getCatOps() {
+             $.get(`${endpoint}/get-all-cat`).done(function (d) {
+                 debugger
+                 $.each(d, (i, v) => {
+                     catOps.push(v)
+                 })
+             }).fail(function (e) {
+                 ShowNotification('error', 'Category', e.responseText);
+             });
+        }
+        function onChaneClient(e) {
+
+            clientId = $(e).val();
+            getApptCatByClientId(clientId)
+
+        }
+
+        var columnSet =
+            [
+                { title: "Id", data: "id", id: "id", visible: false, searchable: false, placeholderMsg: "Server Generated ID", type: "hidden" },
+                {
+                    title: "Created By", data: "createdBy", id: "createdBy", type: "hidden", visible: false, searchable: false,
+                },
+                {
+                    title: "Create Date", data: "createdOn", id: "createdOn", type: "hidden", visible: false, searchable: false,
+                },
+                {
+                    title: "Category Name", data: "name", type: "select", options: catOps,
+                        required: true
+                },
+                {
+                    title: "Category Code", data: "code", type:'hidden',
+                        
+                    },
+                      {
+                          title: "SlotDuration", data: "slotDuration", type: "number",
+                        required: true
+                    },
+                        
+                {
+                    title: "Is Active", data: "isActive", type: "select2", options: [
+                        true, false
+                    ], render: function (data, type, full, meta) {
+
+                        return "<input class='form-check-input' style='margin-left:7px;' type='checkbox' " + `${full.isActive ? 'checked' : ''}` + " disabled >";
+                    },
+                    required: true
+                }
+                ]
+
+        function getApptCatByClientId() {
+            var broadcast = $('#dt-apptcat').dataTable({
+
+                dom: "<'row mb-3'<'col-sm-12 col-md-6 d-flex align-items-center justify-content-start'f><'col-sm-12 col-md-6 d-flex align-items-center justify-content-end'B>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                ajax: endpoint +'/get-by-clientId/' + clientId,
+                destroy:true,
+                columns: columnSet,
+                select: 'single',
+                altEditor: true,
+                responsive: true,
+                pageLength: 5,
+
+                buttons: [
+                    {
+                        extend: 'selected',
+                        text: '<i class="@(Settings.Theme.IconPrefix) fa-times mr-1"></i> Delete',
+                        name: 'delete',
+                        className: 'btn-danger btn-sm mr-1 btnDelete',
+                        id: 'btnDelete'
+                    },
+                    {
+                        extend: 'selected',
+                        text: '<i class="@(Settings.Theme.IconPrefix) fa-edit mr-1"></i> Edit',
+                        name: 'edit',
+                        className: 'btn-primary btn-sm mr-1 btnEdit',
+                        id: 'btnEdit'
+                    },
+                    {
+                        text: '<i class="@(Settings.Theme.IconPrefix) fa-plus mr-1"></i> Add',
+                        name: 'add',
+                        className: 'btn-success btn-sm mr-1 btnAdd',
+                        id: 'btnAdd'
+                    },
+                    {
+                        text: '<i class="@(Settings.Theme.IconPrefix) fa-sync mr-1"></i> Synchronize',
+                        name: 'refresh',
+                        className: 'btn-info btn-sm btnSync',
+                        id: 'btnSync'
+                    }
+                ],
+
+                onAddRow: function (dt, rowdata, success, error) {
+                    if (Validation()) {
+                        rowdata.clientId=clientId
+                        $.ajax({
+                            url: endpoint, type: 'POST', data: rowdata,
+                            success: function (msg) {
+                                if (msg.responseCode == "success") {
+
+                                    $("[id*='altEditor-modal-']").modal('hide')
+                                    ShowNotification('success', 'Category', msg.responseMessage);
+
+                                }
+                                else
+                                    ShowNotification('error', 'Category', msg.responseMessage);
+
+                                $('#dt-apptcat').DataTable().ajax.reload();
+                            },
+                            error: error
+                        });
+                    }
+                },
+            onEditRow: function (dt, rowdata, success, error) {
+                if (Validation()) {
+                    rowdata.clientId = clientId
+                        $.ajax({
+                            url: endpoint, type: 'PUT', data: rowdata,
+                            success: function (msg) {
+                                if (msg.responseCode == "success") {
+
+                                    $("[id*='altEditor-modal-']").modal('hide')
+                                    ShowNotification('success', 'Category', msg.responseMessage);
+
+                                }
+                                else
+                                    ShowNotification('error', 'Category', msg.responseMessage);
+
+                                $('#dt-apptcat').DataTable().ajax.reload();
+                            },
+                            error: error
+                        });
+                        //console.log("Missing AJAX configuration for UPDATE");
+                        //success(rowdata);
+                    }
+                },
+                onDeleteRow: function (dt, rowdata, success, error) {
+                    rowdata.clientId = clientId
+                    $.ajax({
+                        url: endpoint, type: 'DELETE', data: rowdata,
+                        success: function (msg) {
+                            if (msg.responseCode == "success") {
+                                $("[id*='altEditor-modal-']").modal('hide')
+                                ShowNotification('success', 'Category', msg.responseMessage);
+                            }
+                            else
+                                ShowNotification('error', 'Category', msg.responseMessage);
+
+                            $('#dt-apptcat').DataTable().ajax.reload();
+                        },
+                        error: error
+                    });
+                }
+            });
+        }
+
+
+
+        function Validation() {
+
+            return true;
+        }
+
+        function ShowNotification(type, title, msg) {
+
+            toastr[type](msg, title)
+
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "preventDuplicates": true,
+                "onclick": null,
+                "showDuration": 300,
+                "hideDuration": 100,
+                "timeOut": 5000,
+                "extendedTimeOut": 1000,
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            }
+        }
+        $(document).ready(function () {
+            $('#select-Clients').prepend('<option selected></option>').select2({
+                placeholder: "Select  Clients"
+            })
+            getApptCatByClientId(clientId)
+            getCatOps()
+        })
+        
+    </script>
+}

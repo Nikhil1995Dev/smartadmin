@@ -1,0 +1,37 @@
+﻿@model IEnumerable<SmartAdmin.WebUI.ViewModels.ImageGallaryViewModel>
+<table id="dt-gal" class="table table-bordered table-hover table-striped w-100">
+                                    <thead>
+                                        <tr>
+
+                                            <th>
+                                                @Html.DisplayNameFor(model => model.Title)
+                                            </th>
+                                            <th>
+                                                @Html.DisplayNameFor(model => model.ImageName)
+                                            </th>
+
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model)
+                                        {
+                                            <tr>
+
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.Title)
+                                                </td>
+                                                <td>
+
+                                                    <img onmouseover="onMouseOver('this')" onmousemove="onMouseMove('this')"style="width:100px;height:100px" src="~/Uploads/ImageGallary/@item.ImageName" />
+
+                                                </td>
+
+                                                <td>
+                                                    <a class="btn btn-danger" onclick="deleteImage('@item.Id')"><i class="fal fa fa-trash"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+    </table>
+

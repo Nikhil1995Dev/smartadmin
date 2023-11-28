@@ -1,0 +1,194 @@
+{
+  "version": "4.5",
+  "lists": [
+
+    
+    {
+      "title": "User Management",
+      "icon": "fal fa-info-user",
+      "roles": [],
+      "items": [
+        {
+          "title": "User",
+          "showOnSeed": false,
+          "href": "/authorization/users",
+          "roles": []
+        },
+        {
+          "title": "Client",
+          "showOnSeed": false,
+          "href": "/Clients",
+          "roles": []
+        }
+      ]
+    },
+    {
+      "title": "Setting",
+      "icon": "fal fa-info-setting",
+      "roles": [],
+      "items": [
+        {
+          "title": "Setting",
+          "showOnSeed": false,
+          "href": "/Setting",
+          "roles": []
+        }
+
+      ]
+    },
+ 
+    {
+      "title": "Employee Management",
+      "icon": "fal fa-info-person",
+      "roles": [],
+      "items": [
+        {
+          "title": "Add New Employee",
+          "showOnSeed": false,
+          "href": "/EmployeeMaster/Create",
+          "roles": []
+        },
+        {
+          "title": "View Employee",
+          "showOnSeed": false,
+          "href": "/EmployeeMaster",
+          "roles": []
+        }
+
+      ]
+    },
+    {
+      "title": "Timing Management",
+      "icon": "fal fa-clock",
+      "roles": [],
+      "items": [
+        {
+          "title": "Manage Timing",
+          "showOnSeed": false,
+          "href": "/ManageTimings",
+          "roles": []
+        }
+
+      ]
+    },
+    {
+      "title": "Availability Management",
+      "icon": "fal fa-clock",
+      "roles": [],
+      "items": [
+        {
+          "title": "Manage Availability",
+          "showOnSeed": false,
+          "href": "/ManageAvailability",
+          "roles": []
+        }
+
+      ]
+    },
+    {
+      "title": "Content Management",
+      "icon": "fal fa-content",
+      "roles": [],
+      "items": [
+        {
+          "title": "Manage Content",
+          "showOnSeed": false,
+          "href": "/ContentBuilder",
+          "roles": []
+        }
+
+      ]
+    },
+    {
+      "title": "Weekly Shedule",
+      "icon": "fal fa-galary",
+      "roles": [],
+      "items": [
+        {
+          "title": "Manage Weekly Shedule",
+          "showOnSeed": false,
+          "href": "/ImageGallary/Create",
+          "roles": []
+        }
+
+      ]
+    },
+    {
+      "title": "Appointment Management",
+      "icon": "fal fa-galary",
+      "roles": [],
+      "items": [
+        {
+          "title": "Manage Appointment",
+          "showOnSeed": false,
+          "href": "/Appointments/Index",
+          "roles": []
+        },
+        {
+          "title": "Manage Home Lab Test",
+          "showOnSeed": false,
+          "href": "/HomeLabTest/Index",
+          "roles": []
+        }
+
+      ]
+    },
+
+    {
+      "title": "Assessment Management",
+      "icon": "fal fa-content",
+      "roles": [],
+      "items": [
+        {
+          "title": "Manage Assessment",
+          "showOnSeed": false,
+          "href": "/HraAssessment/Index",
+          "roles": []
+        }
+
+      ]
+    },
+    {
+      "title": "BroadCast Management",
+      "icon": "fal fa-content",
+      "roles": [],
+      "items": [
+        {
+          "title": "Manage BroadCast",
+          "showOnSeed": false,
+          "href": "/BroadCast/Index",
+          "roles": []
+        }
+
+      ]
+    },
+    {
+      "title": "Appointment Category Management",
+      "icon": "fal fa-content",
+      "roles": [],
+      "items": [
+        {
+          "title": "Manage Category",
+          "showOnSeed": false,
+          "href": "/AppointmentCategories/Index",
+          "roles": []
+        }
+
+      ]
+    },
+    {
+      "title": "Enquiry  Management",
+      "icon": "fal fa-content",
+      "roles": [],
+      "items": [
+        {
+          "title": "Enquiries",
+          "showOnSeed": false,
+          "href": "/Enquiry/Index",
+          "roles": []
+        }
+
+      ]
+    }
+  ]
+}
