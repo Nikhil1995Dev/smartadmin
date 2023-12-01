@@ -34,6 +34,7 @@ namespace SmartAdmin.WebUI.Data
         public DbSet<ContactU> ContactUs { get; set; }
         public DbSet<OherBooking> OherBookings { get; set; }
         public DbSet<AppointmentDocument> AppointmentDocuments { get; set; }
+        public virtual DbSet<ClientDomains> ClientDomains { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
