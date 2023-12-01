@@ -4,14 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SmartAdmin.WebUI.Data;
-using SmartAdmin.WebUI.EF_Models;
 using SmartAdmin.WebUI.Models;
 using SmartAdmin.WebUI.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace SmartAdmin.WebUI.Controllers
 {

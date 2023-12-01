@@ -5,11 +5,6 @@ VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartAdmin.WebUI", "SmartAdmin.WebUI.csproj", "{3FC5D26F-BAB1-4F61-8D62-D27B7B32C4D9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MobileAppUi", "..\..\MobileAppUi\MobileAppUi.csproj", "{754BB093-35FA-4406-844B-371AFED170E7}"
-	ProjectSection(ProjectDependencies) = postProject
-		{3FC5D26F-BAB1-4F61-8D62-D27B7B32C4D9} = {3FC5D26F-BAB1-4F61-8D62-D27B7B32C4D9}
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,10 +15,6 @@ Global
 		{3FC5D26F-BAB1-4F61-8D62-D27B7B32C4D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3FC5D26F-BAB1-4F61-8D62-D27B7B32C4D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3FC5D26F-BAB1-4F61-8D62-D27B7B32C4D9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{754BB093-35FA-4406-844B-371AFED170E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{754BB093-35FA-4406-844B-371AFED170E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{754BB093-35FA-4406-844B-371AFED170E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{754BB093-35FA-4406-844B-371AFED170E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
